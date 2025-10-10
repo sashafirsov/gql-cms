@@ -8,6 +8,12 @@
     },
     {
       "path": "./apps/gql-api"
+    },
+    {
+      "path": "./apps/admin-ui-e2e"
+    },
+    {
+      "path": "./apps/admin-ui"
     }
   ]
 }
