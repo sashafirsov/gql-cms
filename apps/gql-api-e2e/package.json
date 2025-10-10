@@ -1,0 +1,26 @@
+{
+  "name": "@gql-cms/gql-api-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "implicitDependencies": [
+      "@gql-cms/gql-api"
+    ],
+    "targets": {
+      "e2e": {
+        "executor": "@nx/jest:jest",
+        "outputs": [
+          "{projectRoot}/test-output/jest/coverage"
+        ],
+        "options": {
+          "jestConfig": "apps/gql-api-e2e/jest.config.ts",
+          "passWithNoTests": true
+        },
+        "dependsOn": [
+          "@gql-cms/gql-api:build",
+          "@gql-cms/gql-api:serve"
+        ]
+      }
+    }
+  }
+}
