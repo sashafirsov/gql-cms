@@ -13,7 +13,7 @@
       }
     },
     "dev-server": {
-      "executor": "@nx/next:dev-server",
+      "executor": "@nx/next:serve",
       "options": {
         "buildTarget": "@gql-cms/admin-ui:build",
         "dev": true,
@@ -21,7 +21,7 @@
       }
     },
     "serve": {
-      "executor": "@nx/next:dev-server",
+      "executor": "@nx/next:server",
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "@gql-cms/admin-ui:build",

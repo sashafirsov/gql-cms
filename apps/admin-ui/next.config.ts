@@ -1,15 +1,22 @@
-//@ts-check
+import { NextConfig } from 'next';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { composePlugins, withNx } = require('@nx/next');
 
 /**
  * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
  **/
-const nextConfig = {
+const nextConfig: NextConfig = {
   // Use this to set Nx-specific options
   // See: https://nx.dev/recipes/next/next-config-setup
   nx: {},
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:3000/api/:path*',
+      },
+    ];
+  },
 };
 
 const plugins = [
