@@ -52,7 +52,7 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": ["apps/gql-api-e2e/**/*"]
+      "exclude": ["apps/gql-api-e2e/**/*", "apps/db-init-e2e/**/*"]
     },
     {
       "plugin": "@nx/docker",

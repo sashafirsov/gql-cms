@@ -1,0 +1,49 @@
+{
+  "name": "@gql-cms/admin-ui",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/admin-ui/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/admin-ui"
+      }
+    },
+    "dev-server": {
+      "executor": "@nx/next:dev-server",
+      "options": {
+        "buildTarget": "@gql-cms/admin-ui:build",
+        "dev": true,
+        "port": 4200
+      }
+    },
+    "serve": {
+      "executor": "@nx/next:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "@gql-cms/admin-ui:build",
+        "dev": true,
+        "port": 4200,
+        "proxyConfig": "apps/admin-ui/proxy.conf.json"
+      },
+      "configurations": {
+        "development": {
+          "dev": true
+        },
+        "production": {
+          "dev": false
+        }
+      },
+      "dependsOn": ["db-init:serve"]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/admin-ui/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  }
+}

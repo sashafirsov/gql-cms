@@ -1,0 +1,27 @@
+{
+  "name": "@gql-cms/db-init-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "db-init-e2e",
+    "implicitDependencies": [
+      "db-init"
+    ],
+    "targets": {
+      "e2e": {
+        "executor": "@nx/jest:jest",
+        "outputs": [
+          "{projectRoot}/test-output/jest/coverage"
+        ],
+        "options": {
+          "jestConfig": "apps/db-init-e2e/jest.config.ts",
+          "passWithNoTests": true
+        },
+        "dependsOn": [
+          "db-init:build",
+          "db-init:serve"
+        ]
+      }
+    }
+  }
+}

@@ -6,22 +6,34 @@
       "request": "launch",
       "name": "Debug @gql-cms/gql-api with Nx",
       "runtimeExecutable": "npx",
-      "runtimeArgs": [
-        "nx",
-        "serve",
-        "@gql-cms/gql-api"
-      ],
+      "runtimeArgs": ["nx", "serve", "@gql-cms/gql-api"],
       "env": {
         "NODE_OPTIONS": "--inspect=9229"
       },
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
       "outFiles": [
         "${workspaceFolder}/apps/gql-api/dist/**/*.(m|c|)js",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug db-init with Nx",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nx", "serve", "db-init"],
+      "env": {
+        "NODE_OPTIONS": "--inspect=9230"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/apps/db-init/dist/**/*.(m|c|)js",
         "!**/node_modules/**"
       ]
     }

@@ -14,6 +14,12 @@
     },
     {
       "path": "./apps/admin-ui"
+    },
+    {
+      "path": "./apps/db-init-e2e"
+    },
+    {
+      "path": "./apps/db-init"
     }
   ]
 }
