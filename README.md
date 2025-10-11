@@ -31,6 +31,11 @@ will run the db-init application. Navigate to `http://localhost:3000/api`. The
 will run the gql-api application. Navigate to `http://localhost:3000/api`. The app will automatically reload if you change any of the source files.
 
 # Development
+## Build
+    nx build db-init
+    nx build gql-api
+    nx build admin-ui
+
 ## Database and GraphQL server with Docker
     docker-compose build
     docker-compose up
