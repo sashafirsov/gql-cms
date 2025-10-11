@@ -1,7 +1,17 @@
-# GraphQL CMS 
+# GraphQL CMS
+A reference project with best practices of
+* ✓ monorepo 
+* simple CMS with native PostgreSQL ACL
+* with GraphQL API and NestJS backend
+* NextJS Admin UI
+* Semantic UI Theme
+
+
 * `admin-ui` - NextJS Admin UI
 * `gql-api` - GraphQL API for CMS
-* `db-init` - DB initialization service
+* `db-init` - Synthetic Persona DB initialization service
+* `db` - PostgreSQL in Docker by PostGraphile sample
+* `graphql` - GraphQL web service in Docker by PostGraphile sample
 
 # Setup
     npm install
@@ -19,6 +29,21 @@ will run the db-init application. Navigate to `http://localhost:3000/api`. The
 # `gql-api`
     nx serve gql-api
 will run the gql-api application. Navigate to `http://localhost:3000/api`. The app will automatically reload if you change any of the source files.
+
+
+# Athor's notes
+The project is bootstrapped with [Nx](https://nx.dev). The `gql-api` is built with [NestJS](https://nestjs.com/) and [Graphile](https://www.graphile.org/). 
+The `admin-ui` is built with [NextJS](https://nextjs.org/).
+
+The environment is 
+* Ubuntu Linux in WSL on Windows 11
+* Node v24.10.0 ( latest )
+* IDE: IntelliJ Idea Ultimate 2023.2.3
+* DB: PostgreSQL 15.7
+* AI: Claude 4.5 Sonnet
+* Docker Desktop
+
+Published on [GitHub](https://github.com/sashafirsov/gql-cms)
 
 # GqlCms
 
