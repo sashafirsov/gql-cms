@@ -5,9 +5,12 @@
 # Run the container with `nx docker:run @gql-cms/gql-api -p 3000:3000`.
 #
 FROM docker.io/node:lts-alpine
+LABEL description="Instant high-performance GraphQL API for your PostgreSQL database https://github.com/graphile/postgraphile"
+
 
 ENV HOST=0.0.0.0
-ENV PORT=3000
+ENV PORT=5000
+EXPOSE 5000
 
 
 WORKDIR /app
@@ -18,5 +21,11 @@ COPY dist .
 # The bundled output will include external dependencies.
 
 RUN npm --omit=dev -f install
+# or
+# Install PostGraphile and PostGraphile connection filter plugin
+RUN npm install -g postgraphile
+RUN npm install -g postgraphile-plugin-connection-filter
 
-CMD [ "node", "main.js" ]
+# CMD [ "node", "main.js" ]
+# or
+ENTRYPOINT ["postgraphile", "-n", "0.0.0.0"]

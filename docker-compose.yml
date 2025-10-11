@@ -1,11 +1,10 @@
-version: "3.3"
 services:
-    db:
-        container_name: forum-example-db
+    gql-cms-db:
+        container_name: gql-cms-db
         restart: always
-        image: forum-example-db
+        image: gql-cms-db
         build:
-            context: ./db
+            context: ./apps/db-init/db
         volumes:
             - db:/var/lib/postgresql/data
         env_file:
@@ -15,15 +14,15 @@ services:
         ports:
             - 5432:5432
     graphql:
-        container_name: forum-example-graphql
+        container_name: gql-cms-gql-api
         restart: always
-        image: forum-example-graphql
+        image: gql-cms-gql-api
         build:
-            context: ./graphql
+            context: ./apps/gql-api
         env_file:
             - ./.env
         depends_on:
-            - db
+            - gql-cms-db
         networks:
             - network
         ports:
