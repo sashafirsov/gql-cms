@@ -30,6 +30,21 @@ will run the db-init application. Navigate to `http://localhost:3000/api`. The
     nx serve gql-api
 will run the gql-api application. Navigate to `http://localhost:3000/api`. The app will automatically reload if you change any of the source files.
 
+# Development
+## Database and GraphQL server with Docker
+    docker-compose build
+    docker-compose up
+
+* GraphQL console is available at http://localhost:5433/graphiql
+* GraphQL API is available at http://localhost:5433/graphql
+
+## Admin UI
+    nx serve admin-ui
+* Admin UI is available at http://localhost:4200/
+* API proxy is available at http://localhost:4200/api
+* `db-init` API direct is available at http://localhost:3000/api 
+
+For API working with a live database, run it in Docker as above. Without API available, the Admin UI would use Synthetic Persona mock data from `db-init`.
 
 # Athor's notes
 The project is bootstrapped with [Nx](https://nx.dev). The `gql-api` is built with [NestJS](https://nestjs.com/) and [Graphile](https://www.graphile.org/). 
