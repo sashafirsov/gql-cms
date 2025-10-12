@@ -1,0 +1,8 @@
+-- -- Seed an initial admin user to bootstrap:
+-- INSERT INTO app.users (email, auth_provider, full_name) VALUES ('admin@example.com','local','Admin') RETURNING id;
+-- -- Assign admin role
+-- INSERT INTO app.user_roles(user_id, role_name)
+-- VALUES ((SELECT id FROM app.users WHERE email = 'admin@example.com'),'admin');
+--
+-- INSERT INTO app.user_acl(target_user_id, user_id, role_name)
+--   VALUES ((SELECT id FROM app.users WHERE email = 'admin@example.com'), (SELECT id FROM app.users WHERE email = 'admin@example.com'), 'owner');
