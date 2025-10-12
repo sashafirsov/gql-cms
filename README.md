@@ -10,25 +10,29 @@ A reference project with best practices of
 * `admin-ui` - NextJS Admin UI
 * `gql-api` - GraphQL API for CMS
 * `db-init` - Synthetic Persona DB initialization service
-* `db` - PostgreSQL in Docker by PostGraphile sample
-* `graphql` - GraphQL web service in Docker by PostGraphile sample
+* `gql-cms-db` - PostgreSQL in Docker by PostGraphile sample
 
-# Setup
+# Start development
     npm install
+    npm start # would build and run all applications above in docker
+
+Each application also could be run separately.
+
 # `admin-ui`
     nx serve admin-ui
 
-will run the admin-ui application. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Navigate to http://localhost:4200. The app will automatically reload if you change any of the source files.
 
 It also would run the `gql-api` application in the background with proxy to `http://localhost:4200/api`.
 
 # `db-init`
     nx serve db-init
-will run the db-init application. Navigate to `http://localhost:3000/api`. The
+Populates the Synthetic Persona data into Postgres DB and gives the status on.
+Navigate to `http://localhost:3000/status`. The
 
 # `gql-api`
     nx serve gql-api
-will run the gql-api application. Navigate to `http://localhost:3000/api`. The app will automatically reload if you change any of the source files.
+will run the gql-api application. Navigate to `http://localhost:5433/api`. The app will automatically reload if you change any of the source files.
 
 # Development
 ## Build

@@ -9,8 +9,8 @@ LABEL description="Instant high-performance GraphQL API for your PostgreSQL data
 
 
 ENV HOST=0.0.0.0
-ENV PORT=5000
-EXPOSE 5000
+ENV PORT=3000
+EXPOSE 3000
 
 
 WORKDIR /app
@@ -21,11 +21,12 @@ COPY dist .
 # The bundled output will include external dependencies.
 
 RUN npm --omit=dev -f install
+
+#CMD [ "bash" ]
+CMD [ "node", "main.js" ]
+
 # or
 # Install PostGraphile and PostGraphile connection filter plugin
-RUN npm install -g postgraphile
-RUN npm install -g postgraphile-plugin-connection-filter
-
-# CMD [ "node", "main.js" ]
-# or
-ENTRYPOINT ["postgraphile", "-n", "0.0.0.0"]
+# RUN npm install -g postgraphile
+# RUN npm install -g postgraphile-plugin-connection-filter
+#ENTRYPOINT ["postgraphile", "-n", "0.0.0.0"]

@@ -2,7 +2,21 @@
   "name": "@gql-cms/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+      "start": "npm run build && npm run docker",
+      "build": "npx nx run-many --target=build --all",
+      "lint": "npx nx run-many --target=lint --all",
+      "test": "npx nx run-many --target=test --all",
+      "e2e": "npx nx run-many --target=e2e --all",
+      "affected:build": "npx nx affected --target=build",
+      "affected:lint": "npx nx affected --target=lint",
+      "affected:test": "npx nx affected --target=test",
+      "affected:e2e": "npx nx affected --target=e2e",
+      "format": "npx nx format:write",
+      "format:check": "npx nx format:check",
+      "update": "npx nx migrate latest",
+      "docker": "docker-compose up --build  && echo 'http://localhost:5433/graphiql' && echo 'http://localhost:3000'"
+  },
   "private": true,
   "dependencies": {
     "@nestjs/common": "^11.0.0",
