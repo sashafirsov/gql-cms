@@ -23,16 +23,17 @@
             "build": {
                 "executor": "nx:run-commands",
                 "options": {
-                    "command": "webpack-cli build",
+                    "command": "nest build",
                     "args": [
-                        "--node-env=production"
+                        ""
                     ],
                     "cwd": "apps/db-init"
                 },
                 "configurations": {
                     "development": {
                         "args": [
-                            "--node-env=development"
+                            "--debug",
+                            "--watch"
                         ]
                     }
                 }
