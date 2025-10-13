@@ -13,6 +13,11 @@ services:
             - network
         ports:
             - 5432:5432
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
     graphql:
         container_name: gql-cms-gql-api
         restart: always
@@ -29,6 +34,23 @@ services:
             - network
         ports:
             - 5433:5433
+        command: [  ]
+    db-init:
+        container_name: gql-cms-db-init
+        restart: always
+        image: gql-cms-db-init
+        build:
+            context: ./apps/db-init
+        env_file:
+            - ./.env
+        environment:
+            PORT: 5434
+        depends_on:
+            - gql-cms-db
+        networks:
+            - network
+        ports:
+            - 5434:5434
         command: [  ]
 # for postgraphile
 #        command: [ "--connection", "${DATABASE_URL}", "--port", "5433", "--schema", "public", "--append-plugins", "postgraphile-plugin-connection-filter" ]
