@@ -32,7 +32,9 @@ export default function RootLayout({
     <html>
     <body className={styles.page}>
     <RenderHeading/>
-    <NavBar/>
+    <Suspense fallback={<Loading /> as ReactNode}>
+      <NavBar/>
+    </Suspense>
     <main>{children}</main>
     </body>
     </html>
