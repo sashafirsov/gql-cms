@@ -15,8 +15,8 @@
         "format": "npx nx format:write",
         "format:check": "npx nx format:check",
         "update": "npx nx migrate latest",
-        "docker": "docker-compose up --build -d && echo 'http://localhost:5433/graphiql' && echo 'http://localhost:3000'",
-        "storybook": "npx nx storybook @gql-cms/admin-ui"
+      "docker": "docker-compose up --build -d && echo 'http://localhost:5433/status' && echo 'http://localhost:5434/graphiql' && echo 'http://localhost:4200/'",
+      "serve:admin-ui:prod": "node dist/apps/admin-ui/.next/standalone/server.js"
     },
     "private": true,
     "dependencies": {

@@ -1,0 +1,127 @@
+/* Dropdown container */
+.container {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    border: none;
+    padding: 0;
+    margin: 0;
+    align-items: center;
+
+
+    img {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+}
+
+.legend {
+    font-weight: 600;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+    min-width: 220px;
+    margin: 0;
+}
+
+/* Hide default marker */
+.dropdown > summary::-webkit-details-marker {
+    display: none;
+}
+
+.trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #d1d5db; /* gray-300 */
+    border-radius: 8px;
+    background: #ffffff;
+    color: #111827; /* gray-900 */
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.trigger:focus-visible {
+    outline: 2px solid #2563eb; /* blue-600 */
+    outline-offset: 2px;
+}
+
+.current {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.caret {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 30;
+    display: none;
+    min-width: 100%;
+    max-height: 280px;
+    overflow: auto;
+    padding: 6px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb; /* gray-200 */
+    border-radius: 10px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+
+}
+
+/* Show menu when open */
+.dropdown[open] .menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 6px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.option:hover {
+    background: #f3f4f6; /* gray-100 */
+}
+
+/* Visually hide the radio while keeping it accessible */
+.radio {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    border: 0;
+    padding: 0;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    overflow: hidden;
+}
+
+/* Selected option styling */
+.option[data-selected] {
+    background: #eef2ff; /* indigo-50 */
+    font-weight: 600;
+}
+
+.option[data-selected]:hover {
+    background: #e0e7ff; /* indigo-100 */
+}
