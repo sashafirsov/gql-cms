@@ -1,4 +1,6 @@
 import type { StoryObj } from '@storybook/nextjs';
+import { expect } from 'storybook/test';
+
 import { LanguageSelector } from '@/components/LanguageSelector';
 
 
@@ -24,6 +26,9 @@ export const Default: Story = {
         // pathname: '/',
       }
     }
+  },
+  play: async ({ canvas, userEvent }) => {
+    await expect(canvas.getByText('English US')).toBeInTheDocument();
   }
 };
 export const en: Story = {
@@ -33,6 +38,9 @@ export const en: Story = {
         segments: [['lang', 'en']]
       }
     }
+  },
+  play: async ({ canvas, userEvent }) => {
+    await expect(canvas.getByText('English US')).toBeInTheDocument();
   }
 };
 export const gb: Story = {
@@ -42,6 +50,9 @@ export const gb: Story = {
         segments: [['lang', 'en-gb']]
       }
     }
+  },
+  play: async ({ canvas, userEvent }) => {
+    await expect(canvas.getByText('English GB')).toBeInTheDocument();
   }
 };
 export const es: Story = {
@@ -51,5 +62,8 @@ export const es: Story = {
         segments: [['lang', 'es']]
       }
     }
+  },
+  play: async ({ canvas, userEvent }) => {
+    await expect(canvas.getByText('Español')).toBeInTheDocument();
   }
 };
