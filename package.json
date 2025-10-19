@@ -15,8 +15,9 @@
         "format": "npx nx format:write",
         "format:check": "npx nx format:check",
         "update": "npx nx migrate latest",
-      "docker": "docker-compose up --build -d && echo 'http://localhost:5433/status' && echo 'http://localhost:5434/graphiql' && echo 'http://localhost:4200/'",
-      "serve:admin-ui:prod": "node dist/apps/admin-ui/.next/standalone/server.js"
+        "docker": "docker-compose up --build -d && echo 'http://localhost:5433/status' && echo 'http://localhost:5434/graphiql' && echo 'http://localhost:4200/'",
+        "serve:admin-ui:prod": "node dist/apps/admin-ui/.next/standalone/server.js",
+        "storybook": "npx nx storybook @gql-cms/admin-ui"
     },
     "private": true,
     "dependencies": {
@@ -28,7 +29,8 @@
         "react": "19.2.0",
         "react-dom": "19.2.0",
         "reflect-metadata": "^0.1.13",
-        "rxjs": "^7.8.0"
+        "rxjs": "^7.8.0",
+        "usehooks-ts": "^3.1.1"
     },
     "devDependencies": {
         "@eslint/compat": "^1.1.1",

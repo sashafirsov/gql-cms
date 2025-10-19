@@ -1,57 +1,64 @@
 {
-    "extends": "../../tsconfig.base.json",
-    "compilerOptions": {
-        "jsx": "preserve",
-        "noEmit": true,
-        "emitDeclarationOnly": false,
-        "esModuleInterop": true,
-        "module": "esnext",
-        "moduleResolution": "bundler",
-        "resolveJsonModule": true,
-        "lib": ["dom", "dom.iterable", "esnext"],
-        "allowJs": true,
-        "allowSyntheticDefaultImports": true,
-        "forceConsistentCasingInFileNames": true,
-        "incremental": true,
-        "plugins": [
-            {
-                "name": "next"
-            }
-        ],
-        "paths": {
-            "@/*": ["./src/*"]
-        },
-        "types": ["jest", "node"],
-        "outDir": "dist",
-        "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "noEmit": true,
+    "emitDeclarationOnly": false,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
     },
-    "include": [
-        "../../apps/admin-ui/.next/types/**/*.ts",
-        "../../dist/apps/admin-ui/.next/types/**/*.ts",
-        "next-env.d.ts",
-        "src/**/*.js",
-        "src/**/*.jsx",
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        ".next/types/**/*.ts"
+    "types": [
+      "jest",
+      "node"
     ],
-    "exclude": [
-        "out-tsc",
-        "dist",
-        "node_modules",
-        "jest.config.ts",
-        "src/**/*.spec.ts",
-        "src/**/*.test.ts",
-        ".next",
-        "eslint.config.js",
-        "eslint.config.cjs",
-        "eslint.config.mjs",
-        "**/*.stories.ts",
-        "**/*.stories.js"
-    ],
-    "references": [
-        {
-            "path": "./tsconfig.storybook.json"
-        }
-    ]
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "../../dist/apps/admin-ui/.next/types/**/*.ts"
+  ],
+  "exclude": [
+    "out-tsc",
+    "dist",
+    "node_modules",
+    "jest.config.ts",
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    ".next",
+    "eslint.config.js",
+    "eslint.config.cjs",
+    "eslint.config.mjs",
+    "**/*.stories.ts",
+    "**/*.stories.js"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.storybook.json"
+    }
+  ]
 }

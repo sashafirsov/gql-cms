@@ -1,6 +1,6 @@
 export const i18n={
     en: { langName:'English US'     , flag:'us' , welcome  : "Welcome to admin-ui"                      , dashboardContent: "This is your dashboard content." },
-    'en-GB': { langName:'English GB', flag:'gb' , welcome  : "Great to have you with us at admin-ui"    , dashboardContent: "This is your dashboard content." },
+    'en-gb': { langName:'English GB', flag:'gb' , welcome  : "Great to have you with us at admin-ui"    , dashboardContent: "This is your dashboard content." },
     es: { langName:'Español'        , flag:'es' , welcome  : "Bienvenido a admin-ui"                    , dashboardContent: "Este es el contenido de tu panel." },
     fr: { langName:'Français'       , flag:'fr' , welcome  : "Bienvenue sur admin-ui"                   , dashboardContent: "Ceci est le contenu de votre tableau de bord." },
     de: { langName:'Deutsch'        , flag:'de' , welcome  : "Willkommen bei admin-ui"                  , dashboardContent: "Dies ist Ihr Dashboard-Inhalt." },
