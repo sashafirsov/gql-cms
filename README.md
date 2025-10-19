@@ -6,7 +6,7 @@ A reference project with best practices of
 * NextJS Admin UI
 * Semantic UI Theme
 
-
+## Sub-projects
 * `admin-ui` - NextJS Admin UI
 * `gql-api` - GraphQL API for CMS
 * `db-init` - Synthetic Persona DB initialization service

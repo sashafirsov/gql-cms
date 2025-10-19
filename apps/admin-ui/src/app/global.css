@@ -28,12 +28,12 @@ pre {
 }
 h1,
 h2 {
-  font-size: inherit;
-  font-weight: inherit;
+  /*font-size: inherit;*/
+  /*font-weight: inherit;*/
 }
 a {
-  color: inherit;
-  text-decoration: inherit;
+  /*color: inherit;*/
+  /*text-decoration: inherit;*/
 }
 pre {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,

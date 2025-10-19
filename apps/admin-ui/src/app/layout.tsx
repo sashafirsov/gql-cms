@@ -1,13 +1,14 @@
 'use client';
 
-import './global.css';
-import { Heading } from '@/components/Heading';
 import type { ReactNode } from 'react';
+import { Suspense } from 'react';
 
+import './global.css';
 import styles from './page.module.css';
+import { Heading } from '@/components/Heading';
 import { useLanguage } from '@/components/useLanguage';
 import { Loading } from '@/components/Loading';
-import { Suspense } from 'react';
+import { NavBar } from '@/components/NavBar';
 
 const HeadingWithLang = () => {
   const { getText } = useLanguage();
@@ -31,7 +32,8 @@ export default function RootLayout({
     <html>
     <body className={styles.page}>
     <RenderHeading/>
-    {children}
+    <NavBar/>
+    <main>{children}</main>
     </body>
     </html>
   );
