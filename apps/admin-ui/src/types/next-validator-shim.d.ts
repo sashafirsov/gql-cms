@@ -2,6 +2,6 @@
 // Our source uses `src/app`, but Nx/Next may generate type validators that import from `apps/admin-ui/app/**`.
 // This module declaration prevents TypeScript from failing on those imports during type checking.
 declare module '../../../../../apps/admin-ui/app/*' {
-  const mod: any;
+  const mod: unknown;
   export = mod;
 }
