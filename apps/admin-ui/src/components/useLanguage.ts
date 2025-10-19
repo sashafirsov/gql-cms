@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocalStorage } from 'usehooks-ts';
-import { i18n } from '../i18n';
+import { i18n } from '@/i18n';
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 type Language = keyof typeof i18n;
