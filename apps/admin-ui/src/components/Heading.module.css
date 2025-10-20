@@ -1,0 +1,23 @@
+.heading {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    /*  Internal structure is driven by HTML tags in nested CSS.
+        Use the flat structure with CSS modules where class nesting is not supported */
+    h1 {
+        font-size: 3rem;
+        font-weight: 500;
+        letter-spacing: -0.025em;
+        line-height: 1;
+    }
+
+    b {
+        @media (max-width: 900px) {
+            display: none; /* hide the Language label on small screens */
+        }
+    }
+}
+

@@ -14,6 +14,9 @@ const config: Config = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/apps/admin-ui',
   testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  // Safety valve: if a stray handle still exists, do not hang the process
+  forceExit: true,
 };
 
 export default createJestConfig(config);

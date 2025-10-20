@@ -6,7 +6,7 @@ A reference project with best practices of
 * NextJS Admin UI
 * Semantic UI Theme
 
-
+## Sub-projects
 * `admin-ui` - NextJS Admin UI
 * `gql-api` - GraphQL API for CMS
 * `db-init` - Synthetic Persona DB initialization service
@@ -41,8 +41,7 @@ will run the gql-api application. Navigate to `http://localhost:5433/api`. The a
     nx build admin-ui
 
 ## Database and GraphQL server with Docker
-    docker-compose build
-    docker-compose up
+    docker-compose up --build
 
 * GraphQL console is available at http://localhost:5433/graphiql
 * GraphQL API is available at http://localhost:5433/graphql
@@ -52,6 +51,27 @@ will run the gql-api application. Navigate to `http://localhost:5433/api`. The a
 * Admin UI is available at http://localhost:4200/
 * API proxy is available at http://localhost:4200/api
 * `db-init` API direct is available at http://localhost:3000/api 
+
+### Run the built Admin UI (production build) from the command line
+1. Build it (from repo root):
+
+       npx nx build admin-ui
+
+2. Run the built server (from repo root):
+
+       node dist\\apps\\admin-ui\\.next\\standalone\\server.js
+
+   - Alternatively, using an npm script we added:
+
+       npm run serve:admin-ui:prod
+
+   - Or from within apps/admin-ui directory:
+
+       npm run serve:dist
+
+Notes:
+- The production server entry point is in dist/apps/admin-ui/.next/standalone/server.js (Next.js standalone output).
+- The server listens on port 4200 by default (set via PORT env var). You can change PORT to override.
 
 For API working with a live database, run it in Docker as above. Without API available, the Admin UI would use Synthetic Persona mock data from `db-init`.
 

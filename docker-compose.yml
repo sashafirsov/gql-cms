@@ -52,6 +52,25 @@ services:
         ports:
             - 5434:5434
         command: [  ]
+    admin-ui:
+        container_name: gql-cms-admin-ui
+        restart: always
+        image: gql-cms-admin-ui
+        build:
+            context: .
+            dockerfile: ./apps/admin-ui/Dockerfile
+        env_file:
+            - ./.env
+        environment:
+            PORT: 4200
+        depends_on:
+            - graphql
+            - db-init
+        networks:
+            - network
+        ports:
+            - 4200:4200
+        command: [  ]
 # for postgraphile
 #        command: [ "--connection", "${DATABASE_URL}", "--port", "5433", "--schema", "public", "--append-plugins", "postgraphile-plugin-connection-filter" ]
 

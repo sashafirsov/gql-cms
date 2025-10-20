@@ -1,25 +1,32 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compileOnSave": false,
-  "files": [],
-  "references": [
-    {
-      "path": "./apps/gql-api-e2e"
-    },
-    {
-      "path": "./apps/gql-api"
-    },
-    {
-      "path": "./apps/admin-ui-e2e"
-    },
-    {
-      "path": "./apps/admin-ui"
-    },
-    {
-      "path": "./apps/db-init-e2e"
-    },
-    {
-      "path": "./apps/db-init"
+    "extends": "./tsconfig.base.json",
+    "compileOnSave": false,
+    "files": [],
+    "references": [
+        {
+            "path": "./apps/gql-api-e2e"
+        },
+        {
+            "path": "./apps/gql-api"
+        },
+        {
+            "path": "./apps/admin-ui-e2e"
+        },
+        {
+            "path": "./apps/admin-ui"
+        },
+        {
+            "path": "./apps/db-init-e2e"
+        },
+        {
+            "path": "./apps/db-init"
+        }
+    ],
+    "ts-node": {
+        "compilerOptions": {
+            "module": "commonjs",
+            "moduleResolution": "node10",
+            "customConditions": null
+        }
     }
-  ]
 }
