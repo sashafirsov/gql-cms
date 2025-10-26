@@ -1,4 +1,4 @@
--- 01_acl_seed.sql
+-- 80-northwind-acl-seed.sql
 -- Seed ReBAC catalog + derive initial grants from Northwind sample data
 
 BEGIN;

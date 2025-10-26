@@ -1,4 +1,4 @@
--- 00_acl_schema.sql
+-- 70-northwind-acl-schema.sql
 -- ReBAC (relationship-based access control) with Row-Level Security for Northwind
 
 -- Requirements:
