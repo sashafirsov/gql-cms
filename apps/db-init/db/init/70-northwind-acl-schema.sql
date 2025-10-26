@@ -204,11 +204,11 @@ BEGIN
 END$$;
 
 -- Customers
-ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS customers_read ON customers;
-DROP POLICY IF EXISTS customers_write ON customers;
+ALTER TABLE northwind.customers ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS customers_read ON northwind.customers;
+DROP POLICY IF EXISTS customers_write ON northwind.customers;
 
-CREATE POLICY customers_read ON customers
+CREATE POLICY customers_read ON northwind.customers
 FOR SELECT
 USING (
     acl.has_permission(
@@ -219,7 +219,7 @@ USING (
     )
 );
 
-CREATE POLICY customers_write ON customers
+CREATE POLICY customers_write ON northwind.customers
 FOR UPDATE, DELETE
 USING (
     acl.has_permission(
@@ -231,11 +231,11 @@ USING (
 );
 
 -- Products
-ALTER TABLE products ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS products_read ON products;
-DROP POLICY IF EXISTS products_write ON products;
+ALTER TABLE northwind.products ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS products_read ON northwind.products;
+DROP POLICY IF EXISTS products_write ON northwind.products;
 
-CREATE POLICY products_read ON products
+CREATE POLICY products_read ON northwind.products
 FOR SELECT
 USING (
     acl.has_permission(
@@ -246,7 +246,7 @@ USING (
     )
 );
 
-CREATE POLICY products_write ON products
+CREATE POLICY products_write ON northwind.products
 FOR UPDATE, DELETE
 USING (
     acl.has_permission(
@@ -258,11 +258,11 @@ USING (
 );
 
 -- Orders
-ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS orders_read ON orders;
-DROP POLICY IF EXISTS orders_write ON orders;
+ALTER TABLE northwind.orders ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS orders_read ON northwind.orders;
+DROP POLICY IF EXISTS orders_write ON northwind.orders;
 
-CREATE POLICY orders_read ON orders
+CREATE POLICY orders_read ON northwind.orders
 FOR SELECT
 USING (
     acl.has_permission(
@@ -273,7 +273,7 @@ USING (
     )
 );
 
-CREATE POLICY orders_write ON orders
+CREATE POLICY orders_write ON northwind.orders
 FOR UPDATE, DELETE
 USING (
     acl.has_permission(
@@ -285,11 +285,11 @@ USING (
 );
 
 -- Order Details
-ALTER TABLE order_details ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS order_details_read ON order_details;
-DROP POLICY IF EXISTS order_details_write ON order_details;
+ALTER TABLE northwind.order_details ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS order_details_read ON northwind.order_details;
+DROP POLICY IF EXISTS order_details_write ON northwind.order_details;
 
-CREATE POLICY order_details_read ON order_details
+CREATE POLICY order_details_read ON northwind.order_details
 FOR SELECT
 USING (
     acl.has_permission(
@@ -300,7 +300,7 @@ USING (
     )
 );
 
-CREATE POLICY order_details_write ON order_details
+CREATE POLICY order_details_write ON northwind.order_details
 FOR UPDATE, DELETE
 USING (
     acl.has_permission(
@@ -312,14 +312,14 @@ USING (
 );
 
 -- Allow app_admin to bypass RLS
-ALTER TABLE customers FORCE ROW LEVEL SECURITY;
-ALTER TABLE products  FORCE ROW LEVEL SECURITY;
-ALTER TABLE orders    FORCE ROW LEVEL SECURITY;
-ALTER TABLE order_details FORCE ROW LEVEL SECURITY;
+ALTER TABLE northwind.customers FORCE ROW LEVEL SECURITY;
+ALTER TABLE northwind.products  FORCE ROW LEVEL SECURITY;
+ALTER TABLE northwind.orders    FORCE ROW LEVEL SECURITY;
+ALTER TABLE northwind.order_details FORCE ROW LEVEL SECURITY;
 
 -- app_admin can DISABLE RLS via session role escalation if desired; or grant table privileges directly:
-GRANT SELECT, INSERT, UPDATE, DELETE ON customers, products, orders, order_details TO app_user, app_readonly;
-GRANT SELECT ON customers, products, orders, order_details TO app_readonly;
-GRANT ALL ON customers, products, orders, order_details TO app_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON northwind.customers, northwind.products, northwind.orders, northwind.order_details TO app_user, app_readonly;
+GRANT SELECT ON northwind.customers, northwind.products, northwind.orders, northwind.order_details TO app_readonly;
+GRANT ALL ON northwind.customers, northwind.products, northwind.orders, northwind.order_details TO app_admin;
 
 COMMIT;
