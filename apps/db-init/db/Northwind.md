@@ -83,6 +83,18 @@ https://gitee.com/lucien2009/northwind_psql?skip_mobile=true
 
 This section proposes extending the existing Northwind ACL system (`acl` schema with ReBAC/Zanzibar-style authorization) to support both **password-based authentication** and **OAuth/OIDC authentication**, while maintaining the current relationship-based access control model.
 
+### Alignment with Project Goals
+
+This proposal strictly adheres to the four core architectural goals:
+
+1. ✅ **Keep authorization in Postgres via RLS**: All authorization logic remains in PostgreSQL RLS policies. The existing `acl` schema with tuples, relations, and permissions is unchanged. Authorization decisions are made by PostgreSQL, not application code.
+
+2. ✅ **Use cookies (HttpOnly)**: All tokens (access + refresh) are stored in HttpOnly cookies. JavaScript never sees tokens, preventing XSS token theft. Cookies are Secure and SameSite-protected.
+
+3. ✅ **Support password + OAuth/OIDC**: Dual authentication support via `acl.user_credentials` (password hashing) and `acl.oauth_identities` (OAuth provider linkage). Account linking supported.
+
+4. ✅ **Stateless GraphQL with pgSettings role mapping**: No server-side sessions (except cookies). JWT contains PostgreSQL role (`app_user`, `app_admin`, `anonymous`). PostGraphile's `pgSettings` maps JWT role → PostgreSQL role + sets `app.principal_id` for RLS enforcement.
+
 ## Current State
 
 The existing ACL system (`70-northwind-acl-schema.sql`, `80-northwind-acl-seed.sql`) provides:
@@ -282,6 +294,41 @@ LANGUAGE sql AS $$
     )
     SELECT COUNT(*) FROM deleted;
 $$;
+
+-- Determine PostgreSQL role for a principal (for pgSettings mapping)
+CREATE OR REPLACE FUNCTION acl.get_db_role(p_principal_id UUID)
+RETURNS TEXT
+LANGUAGE sql STABLE AS $$
+    SELECT CASE
+        -- Admin users get app_admin role
+        WHEN EXISTS (
+            SELECT 1 FROM acl.tuples t
+            WHERE t.principal_id = p_principal_id
+              AND t.relation = 'owner'
+              AND t.resource_type = 'system'
+        ) THEN 'app_admin'
+
+        -- Employees and services get app_user role
+        WHEN EXISTS (
+            SELECT 1 FROM acl.principals p
+            WHERE p.id = p_principal_id
+              AND p.kind IN ('employee', 'service')
+        ) THEN 'app_user'
+
+        -- Customers get app_user role
+        WHEN EXISTS (
+            SELECT 1 FROM acl.principals p
+            WHERE p.id = p_principal_id
+              AND p.kind = 'customer'
+        ) THEN 'app_user'
+
+        -- Default to app_readonly for unknown/group principals
+        ELSE 'app_readonly'
+    END;
+$$;
+
+COMMENT ON FUNCTION acl.get_db_role IS
+'Maps a principal to a PostgreSQL database role for pgSettings. This enables stateless GraphQL transport while enforcing RLS via role switching.';
 ```
 
 #### 3. RLS Policies for Auth Tables
@@ -348,42 +395,88 @@ export class AuthModule {}
 
 #### Authentication Endpoints
 
-**POST `/auth/register`**
+**POST `/northwind/auth/register`**
 - Input: `{ email, password, kind: 'customer' | 'employee' }`
 - Create principal + credentials
 - Hash password with argon2id
 - Return access + refresh tokens (HttpOnly cookies)
 
-**POST `/auth/login`**
+**POST `/northwind/auth/login`**
 - Input: `{ email, password }`
 - Verify credentials
 - Generate JWT pair
 - Set cookies, return success
 
-**GET `/auth/:provider/start` (OAuth)**
+**GET `/northwind/auth/:provider/start` (OAuth)**
 - Redirect to OAuth provider with PKCE
 - Store state/nonce/verifier in Redis or DB
 
-**GET `/auth/:provider/callback`**
+**GET `/northwind/auth/:provider/callback`**
 - Exchange code for tokens
 - Call `acl.upsert_oauth_identity()`
 - Generate JWT pair
 - Set cookies, redirect to app
 
-**POST `/auth/refresh`**
+**POST `/northwind/auth/refresh`**
 - Read refresh_token cookie
 - Verify JWT signature
 - Check revocation status in `acl.refresh_tokens`
 - Rotate: revoke old, issue new pair
 - Detect token reuse (family tracking)
 
-**POST `/auth/logout`**
+**POST `/northwind/auth/logout`**
 - Revoke refresh token
 - Clear cookies
 
-**POST `/auth/logout-all`**
+**POST `/northwind/auth/logout-all`**
 - Call `acl.revoke_principal_tokens()`
 - Clear cookies
+
+**GET `/northwind/auth/me`**
+- Get current authenticated user details
+- Returns principal information from JWT
+
+#### PostgreSQL Role Mapping Strategy
+
+When issuing JWTs (login/register/refresh), the application must determine which PostgreSQL role to assign. This enables stateless GraphQL transport while enforcing RLS.
+
+**Role Determination Logic**:
+
+```typescript
+async function determineRole(principalId: UUID): Promise<string> {
+  // Query: SELECT acl.get_db_role($1)
+  const result = await db.query(
+    'SELECT acl.get_db_role($1) as role',
+    [principalId]
+  );
+  return result.rows[0].role;
+}
+
+async function issueTokenPair(principal: Principal) {
+  const role = await determineRole(principal.id);
+
+  const accessToken = jwt.sign({
+    sub: principal.id,
+    email: principal.email,
+    kind: principal.kind,
+    role: role,  // Critical: Maps to PostgreSQL role
+  }, privateKey, { algorithm: 'RS256', expiresIn: '15m' });
+
+  // ... issue refresh token
+}
+```
+
+**Role Assignment Rules** (implemented in `acl.get_db_role()`):
+- **`app_admin`**: Principals with `relation='owner'` on `resource_type='system'`
+- **`app_user`**: Employees, services, and customers (default authenticated role)
+- **`app_readonly`**: Read-only access (groups, or degraded mode)
+- **`anonymous`**: No authentication (public access)
+
+**Benefits**:
+- ✅ **Stateless**: No session lookup; role embedded in JWT
+- ✅ **RLS Enforcement**: PostgreSQL enforces policies based on role
+- ✅ **Granular Control**: Can revoke admin privileges by changing tuples (re-login required)
+- ✅ **Audit Trail**: Role changes logged in `acl.tuples`
 
 #### JWT Structure
 
@@ -393,12 +486,18 @@ export class AuthModule {}
   "sub": "uuid-of-principal",
   "email": "user@example.com",
   "kind": "customer",
+  "role": "app_user",
   "iat": 1234567890,
   "exp": 1234568790,
   "iss": "gql-cms-api",
   "aud": "gql-cms-client"
 }
 ```
+
+**Notes**:
+- `sub`: Principal UUID (used to set `acl.current_principal()`)
+- `role`: PostgreSQL role name (`app_user`, `app_readonly`, `app_admin`) for `pgSettings` role mapping
+- `kind`: Principal kind from `acl.principals.kind` (for application logic)
 
 **Refresh Token** (long-lived, 30 days):
 ```json
@@ -423,11 +522,14 @@ export class AuthMiddleware implements NestMiddleware {
 
     if (token) {
       try {
-        const payload = jwt.verify(token, process.env.JWT_PUBLIC_KEY!);
+        const payload = jwt.verify(token, process.env.JWT_PUBLIC_KEY!, {
+          algorithms: ['RS256']
+        });
         req.auth = {
           principalId: payload.sub,
           email: payload.email,
           kind: payload.kind,
+          role: payload.role,  // PostgreSQL role for pgSettings
         };
       } catch (err) {
         // Invalid/expired token - proceed as anonymous
@@ -438,35 +540,37 @@ export class AuthMiddleware implements NestMiddleware {
   }
 }
 
-// PostGraphile pgSettings
+// PostGraphile pgSettings - enables stateless GraphQL with PostgreSQL role mapping
 pgSettings: async (req: any) => {
-  if (req.auth?.principalId) {
-    // Set PostgreSQL session variable
-    await pgClient.query(
-      "SELECT acl.set_principal($1::uuid)",
-      [req.auth.principalId]
-    );
-  }
-
+  // Map identity to PostgreSQL role + set session principal
+  // This enables RLS enforcement without maintaining server-side sessions
   return {
-    // Additional settings
-    'jwt.claims.email': req.auth?.email,
+    role: req.auth?.role ?? 'anonymous',  // PostgreSQL role switching
+    'app.principal_id': req.auth?.principalId ?? null,  // For acl.current_principal()
+    'jwt.claims.email': req.auth?.email ?? null,
+    'jwt.claims.kind': req.auth?.kind ?? null,
   };
 }
 ```
+
+**Key Design Points**:
+1. **Stateless Transport**: No server-side sessions; all state in JWT cookies
+2. **Role Mapping**: JWT `role` field maps directly to PostgreSQL roles (`app_user`, `app_admin`, `app_readonly`)
+3. **Principal Setting**: `app.principal_id` session variable enables `acl.current_principal()` for RLS
+4. **Anonymous Fallback**: Missing/invalid tokens default to `anonymous` role with no principal
 
 ### Security Considerations
 
 #### 1. Password Security
 - **Hashing Algorithm**: Use `argon2id` (recommended) or `bcrypt` with cost factor 12+
 - **Never store plaintext**: Only store hashes in `acl.user_credentials.password_hash`
-- **Rate limiting**: Protect `/auth/login` with rate limiting (e.g., 5 attempts per 15 min)
+- **Rate limiting**: Protect `/northwind/auth/login` with rate limiting (e.g., 5 attempts per 15 min)
 - **Password requirements**: Enforce minimum length (12+ chars), complexity in application layer
 
 #### 2. Token Security
 - **HttpOnly Cookies**: Never expose tokens to JavaScript
   - `access_token`: HttpOnly, Secure, SameSite=Lax, Path=/, Max-Age=900 (15 min)
-  - `refresh_token`: HttpOnly, Secure, SameSite=Lax, Path=/auth, Max-Age=2592000 (30 days)
+  - `refresh_token`: HttpOnly, Secure, SameSite=Lax, Path=/northwind/auth, Max-Age=2592000 (30 days)
 - **Token Rotation**: Rotate refresh tokens on every use, track families
 - **Revocation**: Support immediate revocation via `acl.refresh_tokens.revoked_at`
 - **CSRF Protection**: Use SameSite cookies + double-submit token for mutations
@@ -585,15 +689,62 @@ WHERE NOT EXISTS (
 6. **Password Reset**: Use email-based reset flow with time-limited tokens?
 7. **Audit Retention**: How long to keep `acl.refresh_tokens` and `acl.sessions` history?
 
+### Implementation Status
+
+✅ **Database Schema** - Completed
+- Created `85-northwind-auth-schema.sql` with authentication tables
+- Created `90-northwind-auth-functions.sql` with helper functions
+
+✅ **NestJS Backend** - Completed
+- Implemented `NorthwindAuthModule` in `apps/gql-api/src/app/northwind-auth/`
+- Authentication endpoints available at `/northwind/auth/*`:
+  - POST `/northwind/auth/register` - User registration
+  - POST `/northwind/auth/login` - Login with password
+  - POST `/northwind/auth/refresh` - Refresh access token
+  - POST `/northwind/auth/logout` - Logout current device
+  - POST `/northwind/auth/logout-all` - Logout all devices
+  - GET `/northwind/auth/me` - Get current user info
+- Auth middleware integrated with PostGraphile pgSettings
+
 ### Next Steps
 
-1. **Review this proposal** with team for feedback
-2. **Create migration scripts** in `apps/db-init/db/init/75-auth-schema.sql`
-3. **Implement NestJS auth module** in `apps/gql-api/src/auth/`
-4. **Update frontend** to use `/auth/*` endpoints and handle cookies
-5. **Document API** in OpenAPI/Swagger
-6. **Write integration tests**
-7. **Deploy to staging** for QA
+1. **Install Dependencies**:
+   ```bash
+   npm install argon2 jsonwebtoken uuid pg cookie-parser
+   npm install -D @types/jsonwebtoken @types/uuid @types/cookie-parser
+   ```
+
+2. **Configure Environment Variables** in `.env`:
+   ```bash
+   DATABASE_URL=postgresql://postgres:password@localhost:5432/gql_cms
+   JWT_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----...
+   JWT_PUBLIC_KEY=-----BEGIN PUBLIC KEY-----...
+   NODE_ENV=development
+   ```
+
+3. **Generate JWT Keys**:
+   ```bash
+   # Generate private key
+   openssl genrsa -out jwt-private.pem 2048
+   # Generate public key
+   openssl rsa -in jwt-private.pem -pubout -out jwt-public.pem
+   # Copy keys to .env (single line, escaped newlines)
+   ```
+
+4. **Run Database Migrations**:
+   ```bash
+   # Start database
+   docker-compose up gql-cms-db
+   # Migrations run automatically via db-init service
+   ```
+
+5. **Update Frontend** to use `/northwind/auth/*` endpoints and handle cookies
+
+6. **Document API** in OpenAPI/Swagger
+
+7. **Write integration tests**
+
+8. **Deploy to staging** for QA
 
 ---
 
@@ -659,11 +810,11 @@ This prevents "confused deputy" attacks where stolen refresh tokens are replayed
 
 **Trade-off**: Slightly more complex client-side (can't read token), but massively more secure.
 
-### Why Separate `/auth` Path for Refresh Token Cookie?
+### Why Separate `/northwind/auth` Path for Refresh Token Cookie?
 
 **Principle of Least Privilege**:
 - Access tokens: Used by all endpoints → `Path=/` cookie
-- Refresh tokens: Only used by `/auth/refresh` → `Path=/auth` cookie
+- Refresh tokens: Only used by `/northwind/auth/refresh` → `Path=/northwind/auth` cookie
 
 Benefits:
 - ✅ Reduces attack surface (refresh token not sent to non-auth endpoints)

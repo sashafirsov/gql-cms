@@ -1,0 +1,251 @@
+// auth.controller.ts
+// Authentication controller for Northwind ACL with /northwind prefix
+
+import { Controller, Post, Get, Body, Req, Res, HttpException, HttpStatus } from '@nestjs/common';
+import { Request, Response } from 'express';
+import { AuthService } from './auth.service';
+import { RegisterDto, LoginDto, AuthResponse } from './auth.dto';
+
+@Controller('northwind/auth')
+export class AuthController {
+  constructor(private authService: AuthService) {}
+
+  /**
+   * POST /northwind/auth/register
+   * Register new user with password
+   */
+  @Post('register')
+  async register(@Body() dto: RegisterDto, @Req() req: Request, @Res() res: Response) {
+    try {
+      const principal = await this.authService.register(
+        dto.email,
+        dto.password,
+        dto.kind || 'customer',
+        dto.displayName
+      );
+
+      // Issue token pair
+      const tokens = await this.authService.issueTokenPair(
+        principal,
+        req.headers['user-agent'],
+        req.ip
+      );
+
+      // Set HttpOnly cookies
+      this.setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+
+      const response: AuthResponse = {
+        success: true,
+        message: 'Registration successful',
+        principal: {
+          id: principal.principalId,
+          email: principal.email,
+          kind: principal.kind,
+          displayName: principal.displayName,
+          emailVerified: principal.emailVerified,
+        },
+      };
+
+      res.status(HttpStatus.CREATED).json(response);
+    } catch (err: any) {
+      throw new HttpException(
+        err.message || 'Registration failed',
+        HttpStatus.BAD_REQUEST
+      );
+    }
+  }
+
+  /**
+   * POST /northwind/auth/login
+   * Login with email and password
+   */
+  @Post('login')
+  async login(@Body() dto: LoginDto, @Req() req: Request, @Res() res: Response) {
+    try {
+      const principal = await this.authService.login(dto.email, dto.password);
+
+      // Issue token pair
+      const tokens = await this.authService.issueTokenPair(
+        principal,
+        req.headers['user-agent'],
+        req.ip
+      );
+
+      // Set HttpOnly cookies
+      this.setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+
+      const response: AuthResponse = {
+        success: true,
+        message: 'Login successful',
+        principal: {
+          id: principal.principalId,
+          email: principal.email,
+          kind: principal.kind,
+          displayName: principal.displayName,
+          emailVerified: principal.emailVerified,
+        },
+      };
+
+      res.json(response);
+    } catch (err: any) {
+      throw new HttpException(
+        'Invalid credentials',
+        HttpStatus.UNAUTHORIZED
+      );
+    }
+  }
+
+  /**
+   * POST /northwind/auth/refresh
+   * Refresh access token using refresh token
+   */
+  @Post('refresh')
+  async refresh(@Req() req: Request, @Res() res: Response) {
+    try {
+      const refreshToken = req.cookies['refresh_token'];
+
+      if (!refreshToken) {
+        throw new Error('No refresh token provided');
+      }
+
+      const tokens = await this.authService.refreshTokens(
+        refreshToken,
+        req.headers['user-agent'],
+        req.ip
+      );
+
+      // Set new HttpOnly cookies
+      this.setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+
+      res.json({
+        success: true,
+        message: 'Token refreshed',
+      });
+    } catch (err: any) {
+      throw new HttpException(
+        err.message || 'Token refresh failed',
+        HttpStatus.UNAUTHORIZED
+      );
+    }
+  }
+
+  /**
+   * POST /northwind/auth/logout
+   * Logout current device (revoke refresh token)
+   */
+  @Post('logout')
+  async logout(@Req() req: Request, @Res() res: Response) {
+    try {
+      const refreshToken = req.cookies['refresh_token'];
+
+      if (refreshToken) {
+        await this.authService.logout(refreshToken);
+      }
+
+      // Clear cookies
+      this.clearAuthCookies(res);
+
+      res.json({
+        success: true,
+        message: 'Logout successful',
+      });
+    } catch (err: any) {
+      throw new HttpException(
+        'Logout failed',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  /**
+   * POST /northwind/auth/logout-all
+   * Logout all devices (revoke all tokens for principal)
+   */
+  @Post('logout-all')
+  async logoutAll(@Req() req: any, @Res() res: Response) {
+    try {
+      // Get principal from auth middleware
+      if (!req.auth || !req.auth.userId) {
+        throw new Error('Not authenticated');
+      }
+
+      await this.authService.logoutAll(req.auth.userId);
+
+      // Clear cookies
+      this.clearAuthCookies(res);
+
+      res.json({
+        success: true,
+        message: 'Logged out from all devices',
+      });
+    } catch (err: any) {
+      throw new HttpException(
+        err.message || 'Logout failed',
+        HttpStatus.UNAUTHORIZED
+      );
+    }
+  }
+
+  /**
+   * GET /northwind/auth/me
+   * Get current user info
+   */
+  @Get('me')
+  async me(@Req() req: any, @Res() res: Response) {
+    try {
+      if (!req.auth || !req.auth.userId) {
+        throw new Error('Not authenticated');
+      }
+
+      const principal = await this.authService.getPrincipalDetails(req.auth.userId);
+
+      res.json({
+        success: true,
+        principal: {
+          id: principal.principalId,
+          email: principal.email,
+          kind: principal.kind,
+          displayName: principal.displayName,
+          emailVerified: principal.emailVerified,
+          role: principal.dbRole,
+        },
+      });
+    } catch (err: any) {
+      throw new HttpException(
+        'Not authenticated',
+        HttpStatus.UNAUTHORIZED
+      );
+    }
+  }
+
+  /**
+   * Helper: Set auth cookies
+   */
+  private setAuthCookies(res: Response, accessToken: string, refreshToken: string) {
+    // Access token cookie (all paths, 15 minutes)
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+
+    // Refresh token cookie (auth path only, 30 days)
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/northwind/auth',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    });
+  }
+
+  /**
+   * Helper: Clear auth cookies
+   */
+  private clearAuthCookies(res: Response) {
+    res.clearCookie('access_token', { path: '/' });
+    res.clearCookie('refresh_token', { path: '/northwind/auth' });
+  }
+}

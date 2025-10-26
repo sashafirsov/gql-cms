@@ -1,16 +1,24 @@
-import { Module, NestMiddleware, MiddlewareConsumer } from '@nestjs/common';
+import { Module, NestMiddleware, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthMiddleware } from './auth.middleware';
+import { NorthwindAuthModule } from './northwind-auth/auth.module';
 
 import { postgraphile } from 'postgraphile';
 
 @Module({
-    imports: [],
+    imports: [NorthwindAuthModule],
     controllers: [AppController],
     providers: [AppService],
 })
 export class AppModule {
     configure(consumer: MiddlewareConsumer) {
+        // Apply auth middleware to all routes
+        consumer
+            .apply(AuthMiddleware)
+            .forRoutes({ path: '*', method: RequestMethod.ALL });
+
+        // Apply PostGraphile middleware to /graphql
         consumer
             .apply(
                 postgraphile(process.env.DATABASE_URL, 'gql_cms', {
@@ -25,6 +33,7 @@ export class AppModule {
 
                         return {
                             role: auth.role, // Postgres role to SET LOCAL ROLE to
+                            'app.principal_id': auth.userId ?? null, // For acl.current_principal()
                             'jwt.claims.user_id': auth.userId ?? null,
                             'jwt.claims.email': auth.email ?? null,
                             'jwt.claims.scopes': (auth.scopes ?? []).join(','),
