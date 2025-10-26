@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-GraphQL CMS is an Nx monorepo demonstrating best practices for a Content Management System with:
+GraphQL CMS (`gql-cms`) is an Nx monorepo demonstrating best practices for a Content Management System with:
 - **NestJS** GraphQL API using **PostGraphile** for auto-generated GraphQL from PostgreSQL
 - **NextJS** Admin UI with React 19, Apollo Client, and Semantic UI Theme
 - **PostgreSQL** with native Row-Level Security (RLS) for fine-grained authorization
@@ -131,9 +131,9 @@ PostgreSQL DB roles used by the application:
 ### ACL Tables (Fine-Grained)
 Per-resource authorization is stored in ACL tables:
 
-1. **`app.user_roles`** - Global roles assigned to users (e.g., admin, manager, bot)
-2. **`app.document_acl`** - Per-document access (owner/manager roles)
-3. **`app.user_acl`** - Per-user access (owner can edit their own profile)
+1. **`gql_cms.user_roles`** - Global roles assigned to users (e.g., admin, manager, bot)
+2. **`gql_cms.document_acl`** - Per-document access (owner/manager roles)
+3. **`gql_cms.user_acl`** - Per-user access (owner can edit their own profile)
 
 ### How RLS Works
 1. Auth middleware (`apps/gql-api/src/app/auth.middleware.ts`) verifies JWT and sets `req.auth`
@@ -142,28 +142,28 @@ Per-resource authorization is stored in ACL tables:
    - `jwt.claims.user_id` → Current user UUID
    - `jwt.claims.email` → User email
    - `jwt.claims.scopes` → Comma-separated scopes
-3. SQL helper `app.current_user_id()` reads `app.user_id` from session
+3. SQL helper `gql_cms.current_user_id()` reads `gql_cms.user_id` from session
 4. RLS policies on tables check:
-   - Global roles via `app.has_global_role('admin')`
-   - Per-resource ACLs via `app.has_doc_role(doc_id, ARRAY['owner','manager'])`
+   - Global roles via `gql_cms.has_global_role('admin')`
+   - Per-resource ACLs via `gql_cms.has_doc_role(doc_id, ARRAY['owner','manager'])`
 
 ### Example RLS Policy
 From `apps/db-init/db/init/26-gql-cms-acl.sql`:
 ```sql
 -- Users can see documents they own/manage, or if they're admin/manager/bot
-CREATE POLICY documents_select ON app.documents FOR SELECT
+CREATE POLICY documents_select ON gql_cms.documents FOR SELECT
 USING (
-  app.has_doc_role(id, ARRAY['owner','manager'])
-  OR app.has_global_role('manager')
-  OR app.has_global_role('admin')
-  OR app.has_global_role('bot')
+  gql_cms.has_doc_role(id, ARRAY['owner','manager'])
+  OR gql_cms.has_global_role('manager')
+  OR gql_cms.has_global_role('admin')
+  OR gql_cms.has_global_role('bot')
 );
 ```
 
 ### Ownership Assignment
 Triggers automatically grant ownership when resources are created:
-- Creating a document → creator becomes `owner` in `app.document_acl`
-- Creating a user → user becomes `owner` of their own record in `app.user_acl`
+- Creating a document → creator becomes `owner` in `gql_cms.document_acl`
+- Creating a user → user becomes `owner` of their own record in `gql_cms.user_acl`
 
 ## Database Schema
 
@@ -175,12 +175,12 @@ Located in `apps/db-init/db/init/`:
 - `24-gql-cms-seed.sql`, `30-gql-cms-seed.sql` - Seed data
 
 ### Core Tables
-- `app.users` - User accounts (email, full_name, auth_provider)
-- `app.documents` - Documents/URLs (full_url, short_url, comment)
-- `app.roles` - Global role definitions (admin, manager, bot, authorizer, owner)
-- `app.user_roles` - Users assigned to global roles
-- `app.document_acl` - Per-document access control
-- `app.user_acl` - Per-user access control
+- `gql_cms.users` - User accounts (email, full_name, auth_provider)
+- `gql_cms.documents` - Documents/URLs (full_url, short_url, comment)
+- `gql_cms.roles` - Global role definitions (admin, manager, bot, authorizer, owner)
+- `gql_cms.user_roles` - Users assigned to global roles
+- `gql_cms.document_acl` - Per-document access control
+- `gql_cms.user_acl` - Per-user access control
 
 ## Frontend Architecture (admin-ui)
 
@@ -249,10 +249,10 @@ To test RLS policies manually:
 -- Simulate an authenticated user
 BEGIN;
 SET LOCAL ROLE app_user;
-SELECT set_config('app.user_id', '<some-uuid>', true);
+SELECT set_config('gql_cms.user_id', '<some-uuid>', true);
 
 -- Try queries - should respect RLS
-SELECT * FROM app.documents;
+SELECT * FROM gql_cms.documents;
 
 ROLLBACK;
 ```
