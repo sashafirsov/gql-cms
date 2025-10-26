@@ -1,5 +1,5 @@
 -- Sample data for categories
-INSERT INTO categories (category_id, category_name, description, picture) VALUES
+INSERT INTO northwind.categories (category_id, category_name, description, picture) VALUES
     (1, 'Beverages', 'Soft drinks, coffees, teas, beers, and ales', '\x'),
     (2, 'Condiments', 'Sweet and savory sauces, relishes, spreads, and seasonings', '\x'),
     (3, 'Confections', 'Desserts, candies, and sweet breads', '\x'),
@@ -12,7 +12,7 @@ INSERT INTO categories (category_id, category_name, description, picture) VALUES
 -- (No sample data for CustomerDemographics or CustomerCustomerDemo tables – they are empty in the official dataset:contentReference[oaicite:8]{index=8})
 
 -- Sample data for customers (selected entries)
-INSERT INTO customers (customer_id, company_name, contact_name, contact_title, address, city, region, postal_code, country, phone, fax) VALUES
+INSERT INTO northwind.customers (customer_id, company_name, contact_name, contact_title, address, city, region, postal_code, country, phone, fax) VALUES
     ('ALFKI', 'Alfreds Futterkiste', 'Maria Anders', 'Sales Representative', 'Obere Str. 57', 'Berlin', NULL, '12209', 'Germany', '030-0074321', '030-0076545'),
     ('CHOPS', 'Chop-suey Chinese', 'Yang Wang', 'Owner', 'Hauptstr. 29', 'Bern', NULL, '3012', 'Switzerland', '0452-076545', NULL),
     ('CENTC', 'Centro comercial Moctezuma', 'Francisco Chang', 'Marketing Manager', 'Sierras de Granada 9993', 'México D.F.', NULL, '05022', 'Mexico', '(5) 555-3392', '(5) 555-7293'),
@@ -28,7 +28,7 @@ INSERT INTO customers (customer_id, company_name, contact_name, contact_title, a
     ('WELLI', 'Wellington Importadora', 'Paula Parente', 'Sales Manager', 'Rua do Mercado, 12', 'Resende', 'SP', '08737-363', 'Brazil', '(14) 555-8122', NULL);
 
 -- Sample data for employees
-INSERT INTO employees (employee_id, last_name, first_name, title, title_of_courtesy, birth_date, hire_date, address, city, region, postal_code, country, home_phone, extension, photo, notes, reports_to, photo_path) VALUES
+INSERT INTO northwind.employees (employee_id, last_name, first_name, title, title_of_courtesy, birth_date, hire_date, address, city, region, postal_code, country, home_phone, extension, photo, notes, reports_to, photo_path) VALUES
     (1, 'Davolio', 'Nancy', 'Sales Representative', 'Ms.', '1948-12-08', '1992-05-01', '507 - 20th Ave. E.\nApt. 2A', 'Seattle', 'WA', '98122', 'USA', '(206) 555-9857', '5467', '\x', 'Education includes a BA in psychology from Colorado State University in 1970. She also completed The Art of the Cold Call. Nancy is a member of Toastmasters International.', 2, 'http://accweb/emmployees/davolio.bmp'),
     (2, 'Fuller', 'Andrew', 'Vice President, Sales', 'Dr.', '1952-02-19', '1992-08-14', '908 W. Capital Way', 'Tacoma', 'WA', '98401', 'USA', '(206) 555-9482', '3457', '\x', 'Andrew received his BTS commercial in 1974 and a Ph.D. in international marketing from the University of Dallas in 1981. He is fluent in French and Italian and reads German. He joined the company as a sales representative, was promoted to sales manager in January 1992 and to vice president of sales in March 1993. Andrew is a member of the Sales Management Roundtable, the Seattle Chamber of Commerce, and the Pacific Rim Importers Association.', NULL, 'http://accweb/emmployees/fuller.bmp'),
     (3, 'Leverling', 'Janet', 'Sales Representative', 'Ms.', '1963-08-30', '1992-04-01', '722 Moss Bay Blvd.', 'Kirkland', 'WA', '98033', 'USA', '(206) 555-3412', '3355', '\x', 'Janet has a BS degree in chemistry from Boston College (1984). She has also completed a certificate program in food retailing management. Janet was hired as a sales associate in 1991 and promoted to sales representative in February 1992.', 2, 'http://accweb/emmployees/leverling.bmp'),
@@ -40,7 +40,7 @@ INSERT INTO employees (employee_id, last_name, first_name, title, title_of_court
     (9, 'Dodsworth', 'Anne', 'Sales Representative', 'Ms.', '1966-01-27', '1994-11-15', '7 Houndstooth Rd.', 'London', NULL, 'WG2 7LT', 'UK', '(71) 555-4444', '452', '\x', 'Anne has a BA degree in English from St. Lawrence College. She is fluent in French and German.', 5, 'http://accweb/emmployees/davolio.bmp');
 
 -- Sample data for suppliers
-INSERT INTO suppliers (supplier_id, company_name, contact_name, contact_title, address, city, region, postal_code, country, phone, fax, homepage) VALUES
+INSERT INTO northwind.suppliers (supplier_id, company_name, contact_name, contact_title, address, city, region, postal_code, country, phone, fax, homepage) VALUES
     (1, 'Exotic Liquids', 'Charlotte Cooper', 'Purchasing Manager', '49 Gilbert St.', 'London', NULL, 'EC1 4SD', 'UK', '(171) 555-2222', NULL, NULL),
     (2, 'New Orleans Cajun Delights', 'Shelley Burke', 'Order Administrator', 'P.O. Box 78934', 'New Orleans', 'LA', '70117', 'USA', '(100) 555-4822', NULL, '#CAJUN.HTM#'),
     (3, 'Grandma Kelly\'s Homestead', 'Regina Murphy', 'Sales Representative', '707 Oxford Rd.', 'Ann Arbor', 'MI', '48104', 'USA', '(313) 555-5735', '(313) 555-3349', NULL),
@@ -72,14 +72,14 @@ INSERT INTO suppliers (supplier_id, company_name, contact_name, contact_title, a
     (29, 'Forêts d\'érables', 'Chantal Goulet', 'Accounting Manager', '148 rue Chasseur', 'Ste-Hyacinthe', 'Québec', 'J2S 7S8', 'Canada', '(514) 555-2955', '(514) 555-2921', NULL);
 
 -- Sample data for region
-INSERT INTO region (region_id, region_description) VALUES
+INSERT INTO northwind.region (region_id, region_description) VALUES
     (1, 'Eastern'),
     (2, 'Western'),
     (3, 'Northern'),
     (4, 'Southern');
 
 -- Sample data for territories
-INSERT INTO territories (territory_id, territory_description, region_id) VALUES
+INSERT INTO northwind.territories (territory_id, territory_description, region_id) VALUES
     ('01581', 'Westboro', 1),
     ('01730', 'Bedford', 1),
     ('01833', 'Georgetow', 1),
@@ -135,7 +135,7 @@ INSERT INTO territories (territory_id, territory_description, region_id) VALUES
     ('98104', 'Seattle', 2);
 
 -- Sample data for employee_territories
-INSERT INTO employee_territories (employee_id, territory_id) VALUES
+INSERT INTO northwind.employee_territories (employee_id, territory_id) VALUES
     (1, '06897'),
     (1, '19713'),
     (2, '01581'),
@@ -187,13 +187,13 @@ INSERT INTO employee_territories (employee_id, territory_id) VALUES
     (9, '55439');
 
 -- Sample data for shippers
-INSERT INTO shippers (shipper_id, company_name, phone) VALUES
+INSERT INTO northwind.shippers (shipper_id, company_name, phone) VALUES
     (1, 'Speedy Express', '(503) 555-9831'),
     (2, 'United Package', '(503) 555-3199'),
     (3, 'Federal Shipping', '(503) 555-9931');
 
 -- Sample data for orders (first 13 orders)
-INSERT INTO orders (order_id, customer_id, employee_id, order_date, required_date, shipped_date, ship_via, freight, ship_name, ship_address, ship_city, ship_region, ship_postal_code, ship_country) VALUES
+INSERT INTO northwind.orders (order_id, customer_id, employee_id, order_date, required_date, shipped_date, ship_via, freight, ship_name, ship_address, ship_city, ship_region, ship_postal_code, ship_country) VALUES
     (10248, 'VINET', 5, '1996-07-04', '1996-08-01', '1996-07-16', 3, 32.38, 'Vins et alcools Chevalier', '59 rue de l\'Abbaye', 'Reims', NULL, '51100', 'France'),
     (10249, 'TOMSP', 6, '1996-07-05', '1996-08-16', '1996-07-10', 1, 11.61, 'Toms Spezialitäten', 'Luisenstr. 48', 'Münster', NULL, '44087', 'Germany'),
     (10250, 'HANAR', 4, '1996-07-08', '1996-08-05', '1996-07-12', 2, 65.83, 'Hanari Carnes', 'Rua do Paço, 67', 'Rio de Janeiro', 'RJ', '05454-876', 'Brazil'),
@@ -209,7 +209,7 @@ INSERT INTO orders (order_id, customer_id, employee_id, order_date, required_dat
     (10260, 'OTTIK', 4, '1996-07-19', '1996-08-16', '1996-07-29', 1, 55.09, 'Ottilies Käseladen', 'Mehrheimerstr. 369', 'Köln', NULL, '50739', 'Germany');
 
 -- Sample data for order_details (details for the above orders)
-INSERT INTO order_details (order_id, product_id, unit_price, quantity, discount) VALUES
+INSERT INTO northwind.order_details (order_id, product_id, unit_price, quantity, discount) VALUES
     (10248, 11, 14.0, 12, 0.0),
     (10248, 42, 9.8, 10, 0.0),
     (10248, 72, 34.8, 5, 0.0),
