@@ -27,7 +27,7 @@
    v
 [PostgreSQL]
   ├─ Roles: anonymous, app_user, manager, admin, bot
-  ├─ Tables: app_user, document, document_acl, user_identity, app_refresh_token
+  ├─ Schema: gql_cms containing tables: users, documents, document_acl, user_identity, refresh_token
   └─ RLS policies read current_setting('jwt.claims.*')
 ```
 
@@ -70,7 +70,7 @@ export class AppModule {
     consumer.apply(AuthMiddleware).forRoutes('*');
 
     consumer
-      .apply(postgraphile(process.env.DATABASE_URL!, 'public', {
+      .apply(postgraphile(process.env.DATABASE_URL!, 'gql_cms', {
         graphiql: process.env.NODE_ENV !== 'production',
         enhanceGraphiql: process.env.NODE_ENV !== 'production',
         pgDefaultRole: 'anonymous',
@@ -201,38 +201,38 @@ async logout(@Req() req, @Res() res) {
 #### 5.1.a Per‑Resource ACLs (recommended)
 
 ```sql
-CREATE TYPE doc_role AS ENUM ('owner','manager','viewer');
-CREATE TABLE document_acl (
-  document_id uuid REFERENCES document(id) ON DELETE CASCADE,
-  user_id     uuid REFERENCES app_user(id) ON DELETE CASCADE,
-  role        doc_role NOT NULL,
+CREATE TYPE gql_cms.doc_role AS ENUM ('owner','manager','viewer');
+CREATE TABLE gql_cms.document_acl (
+  document_id uuid REFERENCES gql_cms.documents(id) ON DELETE CASCADE,
+  user_id     uuid REFERENCES gql_cms.users(id) ON DELETE CASCADE,
+  role        gql_cms.doc_role NOT NULL,
   PRIMARY KEY (document_id, user_id)
 );
 
-CREATE TYPE user_role AS ENUM ('owner','manager','viewer');
-CREATE TABLE user_acl (
+CREATE TYPE gql_cms.user_role AS ENUM ('owner','manager','viewer');
+CREATE TABLE gql_cms.user_acl (
   subject_user_id uuid NOT NULL,  -- who has the permission (e.g., manager)
   object_user_id  uuid NOT NULL,  -- which user record is governed (e.g., employee)
-  role            user_role NOT NULL,
+  role            gql_cms.user_role NOT NULL,
   PRIMARY KEY(subject_user_id, object_user_id)
 );
 
-CREATE FUNCTION has_doc_role(doc_id uuid, want doc_role[])
+CREATE FUNCTION gql_cms.has_doc_role(doc_id uuid, want gql_cms.doc_role[])
 RETURNS boolean LANGUAGE sql STABLE AS $$
   SELECT EXISTS (
-    SELECT 1 FROM document_acl a
+    SELECT 1 FROM gql_cms.document_acl a
     WHERE a.document_id = doc_id
-      AND a.user_id = current_user_id()
+      AND a.user_id = gql_cms.current_user_id()
       AND a.role = ANY(want)
   );
 $$;
 
-CREATE FUNCTION has_user_role(u_id uuid, want user_role[])
+CREATE FUNCTION gql_cms.has_user_role(u_id uuid, want gql_cms.user_role[])
 RETURNS boolean LANGUAGE sql STABLE AS $$
   SELECT EXISTS (
-    SELECT 1 FROM user_acl a
+    SELECT 1 FROM gql_cms.user_acl a
     WHERE a.object_user_id = u_id
-      AND a.subject_user_id = current_user_id()
+      AND a.subject_user_id = gql_cms.current_user_id()
       AND a.role = ANY(want)
   );
 $$;
@@ -241,84 +241,84 @@ $$;
 **RLS examples**
 
 ```sql
-ALTER TABLE app_user ENABLE ROW LEVEL SECURITY;
-ALTER TABLE document ENABLE ROW LEVEL SECURITY;
-ALTER TABLE document_acl ENABLE ROW LEVEL SECURITY;
+ALTER TABLE gql_cms.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE gql_cms.documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE gql_cms.document_acl ENABLE ROW LEVEL SECURITY;
 
-CREATE FUNCTION current_user_id() RETURNS uuid LANGUAGE sql STABLE AS $$
+CREATE FUNCTION gql_cms.current_user_id() RETURNS uuid LANGUAGE sql STABLE AS $$
   SELECT NULLIF(current_setting('jwt.claims.user_id', true), '')::uuid
 $$;
 
--- app_user policies (self or managed)
-CREATE POLICY app_user_select
-  ON app_user FOR SELECT
+-- users policies (self or managed)
+CREATE POLICY users_select
+  ON gql_cms.users FOR SELECT
   USING (
-    id = current_user_id()
-    OR has_user_role(id, ARRAY['owner','manager']::user_role[])
+    id = gql_cms.current_user_id()
+    OR gql_cms.has_user_role(id, ARRAY['owner','manager']::gql_cms.user_role[])
     OR current_setting('role', true) IN ('admin')
   );
 
-CREATE POLICY app_user_update
-  ON app_user FOR UPDATE
+CREATE POLICY users_update
+  ON gql_cms.users FOR UPDATE
   USING (
-    id = current_user_id()
-    OR has_user_role(id, ARRAY['owner','manager']::user_role[])
+    id = gql_cms.current_user_id()
+    OR gql_cms.has_user_role(id, ARRAY['owner','manager']::gql_cms.user_role[])
     OR current_setting('role', true) IN ('admin')
   )
   WITH CHECK (
-    id = current_user_id()
-    OR has_user_role(id, ARRAY['owner','manager']::user_role[])
+    id = gql_cms.current_user_id()
+    OR gql_cms.has_user_role(id, ARRAY['owner','manager']::gql_cms.user_role[])
     OR current_setting('role', true) IN ('admin')
   );
 
--- document policies (owner/manager write, viewer read)
-CREATE POLICY document_read ON document FOR SELECT
+-- documents policies (owner/manager write, viewer read)
+CREATE POLICY documents_read ON gql_cms.documents FOR SELECT
 USING (
-  has_doc_role(id, ARRAY['owner','manager','viewer'])
+  gql_cms.has_doc_role(id, ARRAY['owner','manager','viewer']::gql_cms.doc_role[])
   OR current_setting('role', true) IN ('bot','manager','admin')
 );
 
-CREATE POLICY document_write ON document FOR UPDATE, DELETE
+CREATE POLICY documents_write ON gql_cms.documents FOR UPDATE, DELETE
 USING (
-  has_doc_role(id, ARRAY['owner','manager'])
+  gql_cms.has_doc_role(id, ARRAY['owner','manager']::gql_cms.doc_role[])
   OR current_setting('role', true) IN ('manager','admin')
 )
 WITH CHECK (
-  has_doc_role(id, ARRAY['owner','manager'])
+  gql_cms.has_doc_role(id, ARRAY['owner','manager']::gql_cms.doc_role[])
   OR current_setting('role', true) IN ('manager','admin')
 );
 
 -- creator becomes owner (trigger)
-CREATE FUNCTION document_after_insert() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE FUNCTION gql_cms.document_after_insert() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
-  INSERT INTO document_acl(document_id, user_id, role)
-  VALUES (NEW.id, current_user_id(), 'owner')
+  INSERT INTO gql_cms.document_acl(document_id, user_id, role)
+  VALUES (NEW.id, gql_cms.current_user_id(), 'owner'::gql_cms.doc_role)
   ON CONFLICT DO NOTHING;
   RETURN NEW;
 END; $$;
-CREATE TRIGGER _document_owner AFTER INSERT ON document
-FOR EACH ROW EXECUTE FUNCTION document_after_insert();
+CREATE TRIGGER _document_owner AFTER INSERT ON gql_cms.documents
+FOR EACH ROW EXECUTE FUNCTION gql_cms.document_after_insert();
 ```
 
 #### 5.1.b Generic ReBAC Table (Zanzibar‑style)
 
 ```sql
-CREATE TYPE rel AS ENUM ('owner','manager','viewer');
-CREATE TABLE relation_edge (
+CREATE TYPE gql_cms.rel AS ENUM ('owner','manager','viewer');
+CREATE TABLE gql_cms.relation_edge (
   subject_type text NOT NULL,  -- 'user'
   subject_id   uuid NOT NULL,
-  relation     rel NOT NULL,   -- 'owner' | 'manager' | 'viewer'
+  relation     gql_cms.rel NOT NULL,   -- 'owner' | 'manager' | 'viewer'
   object_type  text NOT NULL,  -- 'document' | 'user'
   object_id    uuid NOT NULL,
   PRIMARY KEY(subject_type, subject_id, relation, object_type, object_id)
 );
 
-CREATE FUNCTION has_relation(obj_type text, obj_id uuid, want rel[])
+CREATE FUNCTION gql_cms.has_relation(obj_type text, obj_id uuid, want gql_cms.rel[])
 RETURNS boolean LANGUAGE sql STABLE AS $$
   SELECT EXISTS (
-    SELECT 1 FROM relation_edge e
+    SELECT 1 FROM gql_cms.relation_edge e
     WHERE e.subject_type = 'user'
-      AND e.subject_id = current_user_id()
+      AND e.subject_id = gql_cms.current_user_id()
       AND e.object_type = obj_type
       AND e.object_id = obj_id
       AND e.relation = ANY(want)
@@ -334,7 +334,7 @@ $$;
 CREATE EXTENSION IF NOT EXISTS pgcrypto;   -- crypt(), gen_random_uuid
 CREATE EXTENSION IF NOT EXISTS pg_trgm;    -- optional for email search
 
-CREATE TABLE app_user (
+CREATE TABLE gql_cms.users (
   id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   email      citext UNIQUE NOT NULL,
   full_name  text,
@@ -342,9 +342,9 @@ CREATE TABLE app_user (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE document (
+CREATE TABLE gql_cms.documents (
   id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  owner_id   uuid NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+  owner_id   uuid NOT NULL REFERENCES gql_cms.users(id) ON DELETE CASCADE,
   full_url   text NOT NULL,
   short_url  text UNIQUE NOT NULL,
   comment    text,
@@ -352,9 +352,9 @@ CREATE TABLE document (
 );
 
 -- OAuth identities
-CREATE TABLE user_identity (
+CREATE TABLE gql_cms.user_identity (
   id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id      uuid NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+  user_id      uuid NOT NULL REFERENCES gql_cms.users(id) ON DELETE CASCADE,
   provider     text NOT NULL,
   provider_sub text NOT NULL,
   email        citext,
@@ -365,9 +365,9 @@ CREATE TABLE user_identity (
 );
 
 -- Refresh ledger
-CREATE TABLE app_refresh_token (
+CREATE TABLE gql_cms.refresh_token (
   jti        uuid PRIMARY KEY,
-  user_id    uuid NOT NULL REFERENCES app_user(id) ON DELETE CASCADE,
+  user_id    uuid NOT NULL REFERENCES gql_cms.users(id) ON DELETE CASCADE,
   issued_at  timestamptz NOT NULL DEFAULT now(),
   expires_at timestamptz NOT NULL,
   revoked_at timestamptz,
@@ -544,13 +544,13 @@ libs/
 ## 15) Minimal SQL for “share” mutation (exposed by PostGraphile)
 
 ```sql
-CREATE FUNCTION share_document(p_document_id uuid, p_user_id uuid, p_role doc_role)
+CREATE FUNCTION gql_cms.share_document(p_document_id uuid, p_user_id uuid, p_role gql_cms.doc_role)
 RETURNS boolean LANGUAGE sql VOLATILE AS $$
-  INSERT INTO document_acl(document_id, user_id, role)
+  INSERT INTO gql_cms.document_acl(document_id, user_id, role)
   SELECT d.id, p_user_id, p_role
-  FROM document d
+  FROM gql_cms.documents d
   WHERE d.id = p_document_id
-    AND (has_doc_role(d.id, ARRAY['owner','manager'])
+    AND (gql_cms.has_doc_role(d.id, ARRAY['owner','manager']::gql_cms.doc_role[])
          OR current_setting('role', true) IN ('manager','admin'));
   SELECT FOUND;
 $$;
