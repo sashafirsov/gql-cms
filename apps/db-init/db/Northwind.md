@@ -7,6 +7,31 @@ It includes all tables, primary/foreign keys, data types, and constraints based 
 [gist.github.com](https://gist.github.com/keeyanajones/2ea808fdca8325a4faf2dbd0a59e0c9e#:~:text=CREATE%20TABLE%20Employees%20,60%29%20NULL)
 . Comments are provided to separate sections for clarity.
 
+# Notes & usage
+
+Session principal: your app (or psql) must set the current principal once per session:
+```sql
+SELECT acl.set_principal('00000000-0000-0000-0000-000000000000'::uuid);
+```
+
+(Use the actual UUID from `acl.principals`.)
+
+**Containment**:
+* `order_detail` inherits access through `order` via `acl.object_edges`.
+* `order` inherits from its `customer`.
+
+**Permissions**:
+* `owner, manager` ⇒ `read + write (+ manage)`
+* `editor` ⇒ `read + write`
+* `viewer, sales_rep, customer_self` ⇒ `read`
+
+**DB roles**:
+* Attach your application connections to `app_user` (RLS enforced) or `app_readonly` (read-only with RLS).
+* `app_admin` is intended for operational access; 
+RLS is still forced, but you can assign tuples or grant table-level privileges if you truly need bypass.
+
+If you want me to extend policies to more tables (e.g., `suppliers`, `categories`, `employees`) or adjust who gets derived access, tell me your rules and I’ll generate matching tuples and policies.
+
 # Northwind Database Schema & Sample Data Sources (with Licenses)
 ## Official Microsoft Distributions
 * **Microsoft’s Northwind Sample (CodePlex/MSDN)** – Originally made available by Microsoft on platforms like CodePlex and MSDN Code Gallery under 
@@ -49,3 +74,639 @@ https://kendralittle.com/2019/12/27/resolving-merge-conflicts-in-sql-source-cont
 northwind_psql: PostgreSQL 示例数据库
 
 https://gitee.com/lucien2009/northwind_psql?skip_mobile=true
+
+---
+
+# ACL Extension: Authentication & Authorization Strategy
+
+## Overview
+
+This section proposes extending the existing Northwind ACL system (`acl` schema with ReBAC/Zanzibar-style authorization) to support both **password-based authentication** and **OAuth/OIDC authentication**, while maintaining the current relationship-based access control model.
+
+## Current State
+
+The existing ACL system (`70-northwind-acl-schema.sql`, `80-northwind-acl-seed.sql`) provides:
+- **Principals** (`acl.principals`): Represents actors (employees, customers, suppliers, services, groups)
+- **Relations & Permissions**: Maps relations (owner, manager, viewer, sales_rep) to permissions (read, write, manage)
+- **Tuples**: Zanzibar-style authorization tuples linking principals to resources
+- **RLS Policies**: Row-level security on `northwind.customers`, `northwind.products`, `northwind.orders`, `northwind.order_details`
+
+**Gap**: No authentication mechanism exists. The system assumes principals are externally authenticated and set via `acl.set_principal(uuid)`.
+
+## Proposed Authentication Architecture
+
+### Design Principles
+
+1. **Separation of Concerns**: Authentication (identity verification) remains separate from authorization (access control)
+2. **Multi-Provider Support**: Support both local passwords and multiple OAuth providers
+3. **Stateless Authentication**: Use JWT tokens with HttpOnly cookies
+4. **Database as Source of Truth**: Store refresh tokens, OAuth identities in PostgreSQL
+5. **Backward Compatible**: Extend existing `acl.principals` without breaking current ACL logic
+
+### Schema Extensions
+
+#### 1. Authentication Tables
+
+```sql
+-- A. User credentials for password authentication
+CREATE TABLE IF NOT EXISTS acl.user_credentials (
+    principal_id    UUID PRIMARY KEY REFERENCES acl.principals(id) ON DELETE CASCADE,
+    email           CITEXT UNIQUE NOT NULL,
+    password_hash   TEXT,  -- argon2id hash; NULL for OAuth-only users
+    email_verified  BOOLEAN DEFAULT FALSE,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+COMMENT ON TABLE acl.user_credentials IS
+'Stores password credentials linked to principals. Email is the primary identifier for authentication.';
+
+-- B. OAuth/OIDC identities
+CREATE TABLE IF NOT EXISTS acl.oauth_identities (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    principal_id    UUID NOT NULL REFERENCES acl.principals(id) ON DELETE CASCADE,
+    provider        TEXT NOT NULL,  -- 'google', 'github', 'azure', etc.
+    provider_sub    TEXT NOT NULL,  -- Provider's subject/user ID
+    provider_email  CITEXT,
+    profile_data    JSONB DEFAULT '{}'::jsonb,
+    access_token_enc BYTEA,  -- Encrypted provider access token (optional)
+    refresh_token_enc BYTEA, -- Encrypted provider refresh token (optional)
+    expires_at      TIMESTAMPTZ,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(provider, provider_sub)
+);
+
+COMMENT ON TABLE acl.oauth_identities IS
+'Stores OAuth/OIDC provider identities linked to principals. Supports account linking (one principal, multiple OAuth providers).';
+
+-- C. Refresh token ledger (JWT rotation)
+CREATE TABLE IF NOT EXISTS acl.refresh_tokens (
+    jti             UUID PRIMARY KEY,  -- JWT ID
+    principal_id    UUID NOT NULL REFERENCES acl.principals(id) ON DELETE CASCADE,
+    token_family    UUID NOT NULL,  -- For token rotation chains
+    issued_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+    expires_at      TIMESTAMPTZ NOT NULL,
+    revoked_at      TIMESTAMPTZ,
+    revoked_reason  TEXT,
+    user_agent      TEXT,
+    ip_address      INET,
+    last_used_at    TIMESTAMPTZ
+);
+
+CREATE INDEX idx_refresh_tokens_principal ON acl.refresh_tokens(principal_id);
+CREATE INDEX idx_refresh_tokens_family ON acl.refresh_tokens(token_family);
+CREATE INDEX idx_refresh_tokens_expires ON acl.refresh_tokens(expires_at) WHERE revoked_at IS NULL;
+
+COMMENT ON TABLE acl.refresh_tokens IS
+'Audit trail and revocation list for refresh JWTs. Supports token rotation with family detection for security.';
+
+-- D. Session tracking (optional, for audit/analytics)
+CREATE TABLE IF NOT EXISTS acl.sessions (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    principal_id    UUID NOT NULL REFERENCES acl.principals(id) ON DELETE CASCADE,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    last_active_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    expires_at      TIMESTAMPTZ NOT NULL,
+    user_agent      TEXT,
+    ip_address      INET,
+    metadata        JSONB DEFAULT '{}'::jsonb
+);
+
+CREATE INDEX idx_sessions_principal ON acl.sessions(principal_id);
+CREATE INDEX idx_sessions_active ON acl.sessions(principal_id, expires_at) WHERE expires_at > now();
+```
+
+#### 2. Helper Functions
+
+```sql
+-- Find principal by email (for login)
+CREATE OR REPLACE FUNCTION acl.find_principal_by_email(p_email CITEXT)
+RETURNS UUID
+LANGUAGE sql STABLE AS $$
+    SELECT principal_id FROM acl.user_credentials WHERE email = p_email;
+$$;
+
+-- Verify password (application should use argon2.verify in NestJS, not SQL)
+-- This is just a helper to fetch hash for verification
+CREATE OR REPLACE FUNCTION acl.get_password_hash(p_email CITEXT)
+RETURNS TEXT
+LANGUAGE sql STABLE SECURITY DEFINER AS $$
+    SELECT password_hash FROM acl.user_credentials WHERE email = p_email;
+$$;
+
+-- Link OAuth identity to existing principal or create new
+CREATE OR REPLACE FUNCTION acl.upsert_oauth_identity(
+    p_provider TEXT,
+    p_provider_sub TEXT,
+    p_provider_email CITEXT,
+    p_profile_data JSONB,
+    p_principal_kind acl.principal_kind DEFAULT 'customer',
+    p_display_name TEXT DEFAULT NULL
+) RETURNS UUID
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_principal_id UUID;
+    v_existing_oauth UUID;
+BEGIN
+    -- Check if OAuth identity already exists
+    SELECT principal_id INTO v_existing_oauth
+    FROM acl.oauth_identities
+    WHERE provider = p_provider AND provider_sub = p_provider_sub;
+
+    IF v_existing_oauth IS NOT NULL THEN
+        -- Update existing OAuth record
+        UPDATE acl.oauth_identities
+        SET provider_email = p_provider_email,
+            profile_data = p_profile_data,
+            updated_at = now()
+        WHERE provider = p_provider AND provider_sub = p_provider_sub;
+
+        RETURN v_existing_oauth;
+    END IF;
+
+    -- Try to find existing principal by email (account linking)
+    SELECT principal_id INTO v_principal_id
+    FROM acl.user_credentials
+    WHERE email = p_provider_email;
+
+    IF v_principal_id IS NULL THEN
+        -- Create new principal
+        INSERT INTO acl.principals(kind, external_id, display_name)
+        VALUES (
+            p_principal_kind,
+            p_provider || ':' || p_provider_sub,
+            COALESCE(p_display_name, p_provider_email)
+        )
+        RETURNING id INTO v_principal_id;
+
+        -- Create user_credentials record (no password)
+        INSERT INTO acl.user_credentials(principal_id, email, email_verified)
+        VALUES (v_principal_id, p_provider_email, TRUE);
+    END IF;
+
+    -- Create OAuth identity
+    INSERT INTO acl.oauth_identities(
+        principal_id, provider, provider_sub,
+        provider_email, profile_data
+    )
+    VALUES (
+        v_principal_id, p_provider, p_provider_sub,
+        p_provider_email, p_profile_data
+    );
+
+    RETURN v_principal_id;
+END;
+$$;
+
+-- Revoke all tokens for a principal (logout all devices)
+CREATE OR REPLACE FUNCTION acl.revoke_principal_tokens(p_principal_id UUID)
+RETURNS VOID
+LANGUAGE sql AS $$
+    UPDATE acl.refresh_tokens
+    SET revoked_at = now(),
+        revoked_reason = 'user_initiated_logout_all'
+    WHERE principal_id = p_principal_id
+      AND revoked_at IS NULL;
+$$;
+
+-- Clean expired/revoked tokens (maintenance)
+CREATE OR REPLACE FUNCTION acl.cleanup_expired_tokens()
+RETURNS INTEGER
+LANGUAGE sql AS $$
+    WITH deleted AS (
+        DELETE FROM acl.refresh_tokens
+        WHERE expires_at < now() - INTERVAL '30 days'
+           OR (revoked_at IS NOT NULL AND revoked_at < now() - INTERVAL '30 days')
+        RETURNING 1
+    )
+    SELECT COUNT(*) FROM deleted;
+$$;
+```
+
+#### 3. RLS Policies for Auth Tables
+
+```sql
+-- User credentials: Users can only see their own
+ALTER TABLE acl.user_credentials ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY user_credentials_select ON acl.user_credentials
+FOR SELECT
+USING (principal_id = acl.current_principal() OR current_user = 'app_admin');
+
+CREATE POLICY user_credentials_update ON acl.user_credentials
+FOR UPDATE
+USING (principal_id = acl.current_principal() OR current_user = 'app_admin')
+WITH CHECK (principal_id = acl.current_principal() OR current_user = 'app_admin');
+
+-- OAuth identities: Users can see their own
+ALTER TABLE acl.oauth_identities ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY oauth_identities_select ON acl.oauth_identities
+FOR SELECT
+USING (principal_id = acl.current_principal() OR current_user = 'app_admin');
+
+-- Refresh tokens: Read-only for users, admin full access
+ALTER TABLE acl.refresh_tokens ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY refresh_tokens_select ON acl.refresh_tokens
+FOR SELECT
+USING (principal_id = acl.current_principal() OR current_user = 'app_admin');
+
+-- Sessions: Users can see their own
+ALTER TABLE acl.sessions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY sessions_select ON acl.sessions
+FOR SELECT
+USING (principal_id = acl.current_principal() OR current_user = 'app_admin');
+```
+
+### Application Integration
+
+#### NestJS Authentication Module
+
+```typescript
+// Proposed NestJS structure (not implemented, just plan)
+
+@Module({
+  imports: [
+    PassportModule,
+    JwtModule.register({ /* ... */ }),
+  ],
+  controllers: [AuthController],
+  providers: [
+    AuthService,
+    PasswordStrategy,  // Local strategy
+    JwtStrategy,       // JWT verification
+    GoogleStrategy,    // OAuth providers
+    GithubStrategy,
+    // ... other OAuth strategies
+  ],
+})
+export class AuthModule {}
+```
+
+#### Authentication Endpoints
+
+**POST `/auth/register`**
+- Input: `{ email, password, kind: 'customer' | 'employee' }`
+- Create principal + credentials
+- Hash password with argon2id
+- Return access + refresh tokens (HttpOnly cookies)
+
+**POST `/auth/login`**
+- Input: `{ email, password }`
+- Verify credentials
+- Generate JWT pair
+- Set cookies, return success
+
+**GET `/auth/:provider/start` (OAuth)**
+- Redirect to OAuth provider with PKCE
+- Store state/nonce/verifier in Redis or DB
+
+**GET `/auth/:provider/callback`**
+- Exchange code for tokens
+- Call `acl.upsert_oauth_identity()`
+- Generate JWT pair
+- Set cookies, redirect to app
+
+**POST `/auth/refresh`**
+- Read refresh_token cookie
+- Verify JWT signature
+- Check revocation status in `acl.refresh_tokens`
+- Rotate: revoke old, issue new pair
+- Detect token reuse (family tracking)
+
+**POST `/auth/logout`**
+- Revoke refresh token
+- Clear cookies
+
+**POST `/auth/logout-all`**
+- Call `acl.revoke_principal_tokens()`
+- Clear cookies
+
+#### JWT Structure
+
+**Access Token** (short-lived, 15 min):
+```json
+{
+  "sub": "uuid-of-principal",
+  "email": "user@example.com",
+  "kind": "customer",
+  "iat": 1234567890,
+  "exp": 1234568790,
+  "iss": "gql-cms-api",
+  "aud": "gql-cms-client"
+}
+```
+
+**Refresh Token** (long-lived, 30 days):
+```json
+{
+  "sub": "uuid-of-principal",
+  "jti": "uuid-of-token",
+  "family": "uuid-of-family",
+  "iat": 1234567890,
+  "exp": 1237159890,
+  "iss": "gql-cms-api"
+}
+```
+
+#### Middleware Integration
+
+```typescript
+// Auth middleware (already exists in gql-api/auth.middleware.ts)
+export class AuthMiddleware implements NestMiddleware {
+  use(req: any, res: any, next: Function) {
+    const cookies = cookie.parse(req.headers.cookie || '');
+    const token = cookies['access_token'];
+
+    if (token) {
+      try {
+        const payload = jwt.verify(token, process.env.JWT_PUBLIC_KEY!);
+        req.auth = {
+          principalId: payload.sub,
+          email: payload.email,
+          kind: payload.kind,
+        };
+      } catch (err) {
+        // Invalid/expired token - proceed as anonymous
+      }
+    }
+
+    next();
+  }
+}
+
+// PostGraphile pgSettings
+pgSettings: async (req: any) => {
+  if (req.auth?.principalId) {
+    // Set PostgreSQL session variable
+    await pgClient.query(
+      "SELECT acl.set_principal($1::uuid)",
+      [req.auth.principalId]
+    );
+  }
+
+  return {
+    // Additional settings
+    'jwt.claims.email': req.auth?.email,
+  };
+}
+```
+
+### Security Considerations
+
+#### 1. Password Security
+- **Hashing Algorithm**: Use `argon2id` (recommended) or `bcrypt` with cost factor 12+
+- **Never store plaintext**: Only store hashes in `acl.user_credentials.password_hash`
+- **Rate limiting**: Protect `/auth/login` with rate limiting (e.g., 5 attempts per 15 min)
+- **Password requirements**: Enforce minimum length (12+ chars), complexity in application layer
+
+#### 2. Token Security
+- **HttpOnly Cookies**: Never expose tokens to JavaScript
+  - `access_token`: HttpOnly, Secure, SameSite=Lax, Path=/, Max-Age=900 (15 min)
+  - `refresh_token`: HttpOnly, Secure, SameSite=Lax, Path=/auth, Max-Age=2592000 (30 days)
+- **Token Rotation**: Rotate refresh tokens on every use, track families
+- **Revocation**: Support immediate revocation via `acl.refresh_tokens.revoked_at`
+- **CSRF Protection**: Use SameSite cookies + double-submit token for mutations
+
+#### 3. OAuth Security
+- **PKCE**: Always use PKCE (RFC 7636) for authorization code flow
+- **State validation**: Validate state parameter to prevent CSRF
+- **Nonce validation**: Validate nonce in ID token to prevent replay attacks
+- **Token encryption**: Encrypt provider tokens if storing for API calls (use `pg_crypto`)
+- **Scope minimization**: Request only necessary OAuth scopes
+
+#### 4. Database Security
+- **RLS Enforcement**: Always enable RLS on auth tables
+- **Function Security**: Use `SECURITY DEFINER` carefully, prefer `SECURITY INVOKER`
+- **Encryption at Rest**: Use PostgreSQL encryption for sensitive columns
+- **Audit Logging**: Log authentication events in `acl.refresh_tokens`, `acl.sessions`
+- **Connection Security**: Use SSL/TLS for database connections
+
+### Migration Strategy
+
+#### Phase 1: Add Tables (Non-Breaking)
+1. Run migration to create auth tables
+2. Deploy without changing application behavior
+3. Verify schema creation
+
+#### Phase 2: Populate Existing Principals
+1. For existing `acl.principals` with `external_id` like `'employee:X'` or `'customer:Y'`:
+   - Create corresponding `acl.user_credentials` entries
+   - Generate temporary passwords or mark as OAuth-only
+   - Send password reset emails
+2. For Northwind employees: Link to `northwind.employees.employee_id`
+3. For Northwind customers: Link to `northwind.customers.customer_id`
+
+```sql
+-- Example migration for existing employees
+INSERT INTO acl.user_credentials(principal_id, email, email_verified)
+SELECT
+    p.id,
+    LOWER(e.first_name || '.' || e.last_name || '@northwind.example') as email,
+    FALSE
+FROM acl.principals p
+JOIN northwind.employees e ON p.external_id = 'employee:' || e.employee_id::text
+WHERE NOT EXISTS (
+    SELECT 1 FROM acl.user_credentials c WHERE c.principal_id = p.id
+);
+
+-- Example migration for existing customers
+INSERT INTO acl.user_credentials(principal_id, email, email_verified)
+SELECT
+    p.id,
+    LOWER(REPLACE(c.contact_name, ' ', '.') || '@' || c.company_name || '.example') as email,
+    FALSE
+FROM acl.principals p
+JOIN northwind.customers c ON p.external_id = 'customer:' || c.customer_id
+WHERE NOT EXISTS (
+    SELECT 1 FROM acl.user_credentials c WHERE c.principal_id = p.id
+);
+```
+
+#### Phase 3: Implement Auth Endpoints
+1. Develop NestJS auth module
+2. Add password registration/login
+3. Add OAuth providers (Google, GitHub)
+4. Add token refresh/revocation
+
+#### Phase 4: Integrate with PostGraphile
+1. Update `auth.middleware.ts` to verify JWTs
+2. Update `pgSettings` to call `acl.set_principal()`
+3. Test RLS enforcement with authenticated requests
+
+#### Phase 5: Gradual Rollout
+1. Enable for test users
+2. Monitor logs for errors
+3. Full production rollout
+4. Deprecate manual `SELECT acl.set_principal()` calls
+
+### Testing Strategy
+
+#### Unit Tests
+- Password hashing/verification
+- JWT signing/verification
+- OAuth token exchange
+- Refresh token rotation
+- Revocation logic
+
+#### Integration Tests
+- `/auth/register` → creates principal + credentials
+- `/auth/login` → sets cookies, returns tokens
+- `/auth/:provider/callback` → links OAuth identity
+- `/auth/refresh` → rotates tokens correctly
+- `/auth/logout` → revokes token
+- RLS enforcement with/without principal set
+
+#### Security Tests
+- Token expiration
+- Revocation enforcement
+- CSRF protection
+- Rate limiting
+- SQL injection (parameterized queries)
+- Password strength enforcement
+
+### Performance Considerations
+
+1. **Token Verification**: Cache JWT public key in memory
+2. **Database Queries**: Index `acl.user_credentials(email)`, `acl.oauth_identities(provider, provider_sub)`
+3. **Token Cleanup**: Run `acl.cleanup_expired_tokens()` daily via cron
+4. **Session Tracking**: Use Redis for session cache if scaling beyond single instance
+
+### Open Questions / Decisions Needed
+
+1. **Password vs OAuth Priority**: Should we encourage OAuth-only for customers, or support both equally?
+2. **Email Verification**: Require email verification before access, or allow immediate login?
+3. **Multi-Factor Authentication**: Add TOTP/SMS 2FA support in future?
+4. **Device Management**: Allow users to view/revoke tokens per device?
+5. **Account Linking**: Allow linking multiple OAuth providers to one principal?
+6. **Password Reset**: Use email-based reset flow with time-limited tokens?
+7. **Audit Retention**: How long to keep `acl.refresh_tokens` and `acl.sessions` history?
+
+### Next Steps
+
+1. **Review this proposal** with team for feedback
+2. **Create migration scripts** in `apps/db-init/db/init/75-auth-schema.sql`
+3. **Implement NestJS auth module** in `apps/gql-api/src/auth/`
+4. **Update frontend** to use `/auth/*` endpoints and handle cookies
+5. **Document API** in OpenAPI/Swagger
+6. **Write integration tests**
+7. **Deploy to staging** for QA
+
+---
+
+## Rationale for Design Decisions
+
+### Why Separate `acl.user_credentials` from `acl.principals`?
+
+**Separation of Identity and Actor**:
+- `acl.principals` represents an **actor** in the authorization system (employee, customer, service account)
+- `acl.user_credentials` represents **authentication credentials** for that actor
+- One principal may have multiple authentication methods (password + Google + GitHub)
+- Service accounts (`kind='service'`) may never have credentials (API key-based)
+- Groups (`kind='group'`) don't have credentials but contain members
+
+This design:
+- ✅ Supports account linking (multiple OAuth providers → one principal)
+- ✅ Allows principals to exist without passwords (OAuth-only)
+- ✅ Keeps authorization logic clean (RLS policies only care about principal_id)
+- ✅ Enables service accounts and groups in the same principal table
+
+### Why Store Refresh Tokens in Database vs Redis?
+
+**PostgreSQL for Audit + Security**:
+- ✅ **Audit Trail**: Full history of token issuance, usage, revocation
+- ✅ **Consistency**: Single source of truth with transactions
+- ✅ **Revocation**: Immediate enforcement via database query
+- ✅ **Family Tracking**: Detect token reuse attacks with SQL JOINs
+- ✅ **User Management**: Users can view/revoke their own tokens via RLS
+
+**Redis would be better for**:
+- ❌ High-frequency token checks (but we verify JWT signature first, only check DB on refresh)
+- ❌ Distributed systems (but we can replicate PostgreSQL too)
+
+**Hybrid Approach** (future optimization):
+- Store in PostgreSQL for audit
+- Cache active tokens in Redis with TTL
+- Check Redis first, fall back to PostgreSQL
+
+### Why CITEXT for Email?
+
+**Case-Insensitive Unique Emails**:
+- `user@example.com` and `USER@EXAMPLE.COM` are the same email
+- `CITEXT` provides case-insensitive comparison without losing original case
+- Ensures unique constraint works correctly: `CREATE UNIQUE INDEX ON acl.user_credentials(email)`
+
+### Why Token Family Tracking?
+
+**Detect Token Theft**:
+1. User logs in → receives refresh token A (family UUID: F1)
+2. Token A refreshed → revoked, new token B issued (family: F1)
+3. If attacker uses stolen token A → system detects old token from family F1 was reused
+4. **Automatic response**: Revoke entire family F1, force re-login
+
+This prevents "confused deputy" attacks where stolen refresh tokens are replayed.
+
+### Why HttpOnly Cookies vs Local Storage?
+
+**Security > Convenience**:
+- ❌ **Local Storage**: Vulnerable to XSS (any injected script can steal tokens)
+- ✅ **HttpOnly Cookies**: Inaccessible to JavaScript, immune to XSS token theft
+- ✅ **Secure Flag**: Ensures transmission only over HTTPS
+- ✅ **SameSite**: Protects against CSRF attacks
+
+**Trade-off**: Slightly more complex client-side (can't read token), but massively more secure.
+
+### Why Separate `/auth` Path for Refresh Token Cookie?
+
+**Principle of Least Privilege**:
+- Access tokens: Used by all endpoints → `Path=/` cookie
+- Refresh tokens: Only used by `/auth/refresh` → `Path=/auth` cookie
+
+Benefits:
+- ✅ Reduces attack surface (refresh token not sent to non-auth endpoints)
+- ✅ If non-auth endpoint is compromised, can't steal refresh token
+- ✅ Follows OAuth 2.0 security best practices
+
+### Why PKCE for OAuth?
+
+**RFC 7636 - Proof Key for Code Exchange**:
+- Protects against authorization code interception attacks
+- Especially important for public clients (SPAs, mobile apps)
+- Required by OAuth 2.1 specification
+- No downside to using it (supported by all major providers)
+
+**Flow**:
+1. Client generates `code_verifier` (random string)
+2. Client sends `code_challenge = SHA256(code_verifier)` to auth server
+3. Auth server returns authorization code
+4. Client sends code + `code_verifier` to token endpoint
+5. Server verifies `SHA256(code_verifier) == code_challenge`
+
+This ensures even if authorization code is intercepted, attacker can't exchange it without verifier.
+
+### Why argon2id Over bcrypt?
+
+**Modern Password Hashing**:
+- ✅ **argon2id**: Winner of Password Hashing Competition (2015)
+- ✅ Resistant to GPU/ASIC attacks (memory-hard)
+- ✅ Configurable time/memory costs
+- ❌ **bcrypt**: Older, less resistant to hardware attacks
+
+**Recommendation**: Use `@node-rs/argon2` in NestJS for native performance.
+
+### Why Email as Primary Identifier?
+
+**User Experience**:
+- ✅ Users remember emails better than usernames
+- ✅ Email required for password reset anyway
+- ✅ Most OAuth providers return email as primary identifier
+- ✅ Enables account linking (match OAuth email to existing account)
+
+**Alternative** (future): Support username OR email login, store username in `acl.user_credentials`.
+
+---
+
+This proposal provides a comprehensive, secure, and scalable authentication system that integrates seamlessly with the existing Northwind ACL authorization model. The separation of authentication (who you are) from authorization (what you can do) maintains clean architectural boundaries while enabling multiple authentication methods per principal.
