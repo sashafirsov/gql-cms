@@ -220,8 +220,16 @@ USING (
 );
 
 CREATE POLICY customers_write ON northwind.customers
-FOR UPDATE, DELETE
+FOR ALL
 USING (
+    acl.has_permission(
+        acl.require_principal(),
+        'write',
+        'customer',
+        customer_id::text
+    )
+)
+WITH CHECK (
     acl.has_permission(
         acl.require_principal(),
         'write',
@@ -247,8 +255,16 @@ USING (
 );
 
 CREATE POLICY products_write ON northwind.products
-FOR UPDATE, DELETE
+FOR ALL
 USING (
+    acl.has_permission(
+        acl.require_principal(),
+        'write',
+        'product',
+        product_id::text
+    )
+)
+WITH CHECK (
     acl.has_permission(
         acl.require_principal(),
         'write',
@@ -274,8 +290,16 @@ USING (
 );
 
 CREATE POLICY orders_write ON northwind.orders
-FOR UPDATE, DELETE
+FOR ALL
 USING (
+    acl.has_permission(
+        acl.require_principal(),
+        'write',
+        'order',
+        order_id::text
+    )
+)
+WITH CHECK (
     acl.has_permission(
         acl.require_principal(),
         'write',
@@ -301,8 +325,16 @@ USING (
 );
 
 CREATE POLICY order_details_write ON northwind.order_details
-FOR UPDATE, DELETE
+FOR ALL
 USING (
+    acl.has_permission(
+        acl.require_principal(),
+        'write',
+        'order_detail',
+        (order_id::text || ':' || product_id::text)
+    )
+)
+WITH CHECK (
     acl.has_permission(
         acl.require_principal(),
         'write',

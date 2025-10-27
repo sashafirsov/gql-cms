@@ -269,39 +269,90 @@ query GetCustomers {
 
 ### Unit Tests
 ```bash
-nx test gql-api
+    nx test gql-api
 ```
 
 ### E2E Tests
 ```bash
-nx e2e gql-api-e2e
+    nx e2e gql-api-e2e
 ```
 
 ### Manual API Testing
 
 #### Test Authentication Flow
+1. Register a new user
 ```bash
-# 1. Register
-curl -c cookies.txt -X POST http://localhost:5433/northwind/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"SecurePass123!","kind":"customer"}'
+  curl -c cookies.txt -X POST http://localhost:5433/northwind/auth/register \
+    -H "Content-Type: application/json" \
+    -d '{"email":"test@example.com","password":"SecurePass123!","kind":"customer"}'
+
+  # Expected response:
+  # {
+  #   "success": true,
+  #   "message": "Registration successful",
+  #   "principal": {
+  #     "id": "uuid",
+  #     "email": "test@example.com",
+  #     "kind": "customer",
+  #     "displayName": "test@example.com",
+  #     "emailVerified": false
+  #   }
+  # }
+```
 
 # 2. Login
-curl -c cookies.txt -X POST http://localhost:5433/northwind/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"SecurePass123!"}'
-
+```bash
+    curl -c cookies.txt -X POST http://localhost:5433/northwind/auth/login \
+      -H "Content-Type: application/json" \
+      -d '{"email":"test@example.com","password":"SecurePass123!"}'
+```
 # 3. Get current user (uses cookies)
-curl -b cookies.txt http://localhost:5433/northwind/auth/me
-
+```bash
+    curl -b cookies.txt http://localhost:5433/northwind/auth/me
+```
 # 4. Test GraphQL with authentication
-curl -b cookies.txt -X POST http://localhost:5433/graphql \
-  -H "Content-Type: application/json" \
-  -d '{"query":"{ allCustomers { nodes { customerId companyName } } }"}'
+```bash
+    curl -b cookies.txt -X POST http://localhost:5433/graphql \
+      -H "Content-Type: application/json" \
+      -d '{"query":"{ allCustomers { nodes { customerId companyName } } }"}'
+```
 
 # 5. Logout
-curl -b cookies.txt -c cookies.txt -X POST http://localhost:5433/northwind/auth/logout
+```bash
+    curl -b cookies.txt -c cookies.txt -X POST http://localhost:5433/northwind/auth/logout
 ```
+
+## Available Endpoints
+
+  - 🔐 POST /northwind/auth/register - Register new user
+  - 🔐 POST /northwind/auth/login - Login with password
+  - 🔐 POST /northwind/auth/refresh - Refresh access token
+  - 🔐 POST /northwind/auth/logout - Logout current device
+  - 🔐 POST /northwind/auth/logout-all - Logout all devices
+  - 🔐 GET /northwind/auth/me - Get current user info
+  - 📊 GET /status - Application status
+  - 🎯 POST /graphql - GraphQL endpoint
+  - 🎯 GET /graphiql - GraphQL IDE (dev only)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Security Considerations
 

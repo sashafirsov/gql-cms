@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS acl.sessions (
 );
 
 CREATE INDEX idx_sessions_principal ON acl.sessions(principal_id);
-CREATE INDEX idx_sessions_active ON acl.sessions(principal_id, expires_at) WHERE expires_at > now();
+CREATE INDEX idx_sessions_active ON acl.sessions(principal_id, expires_at);
 
 COMMENT ON TABLE acl.sessions IS
 'Tracks active sessions for audit and analytics purposes. Sessions are informational only; authentication uses JWT tokens.';

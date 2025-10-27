@@ -25,6 +25,8 @@ export class AppModule {
                     // expose GraphiQL in dev only
                     graphiql: process.env.NODE_ENV !== 'production',
                     enhanceGraphiql: process.env.NODE_ENV !== 'production',
+                    // Retry on connection failures (useful during container startup)
+                    retryOnInitFail: true,
                     // very important: inject per-request pg session vars
                     pgSettings: async (req) => {
                         // result of your auth layer:
@@ -39,8 +41,6 @@ export class AppModule {
                             'jwt.claims.scopes': (auth.scopes ?? []).join(','),
                         };
                     },
-                    // optional: default DB role for anonymous
-                    pgDefaultRole: 'anonymous',
                 })
             )
             .forRoutes('/graphql');

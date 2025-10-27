@@ -1,4 +1,7 @@
-\connect forum_example;
+\connect gql_cms;
+
+-- Create gql_cms schema if it doesn't exist
+CREATE SCHEMA IF NOT EXISTS gql_cms;
 
 /*Create user table in gql-cms schema*/
 CREATE TABLE gql_cms.user (

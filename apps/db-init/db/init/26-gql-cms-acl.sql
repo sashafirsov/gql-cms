@@ -234,7 +234,7 @@ WITH CHECK (gql_cms.has_global_role('manager') OR gql_cms.has_global_role('admin
 -- === Grants (example: one application DB role) ===============================
 -- Create a single DB role used by your app and let RLS do the filtering.
 -- CREATE ROLE app_client NOINHERIT LOGIN PASSWORD '***';  -- (optional)
-GRANT USAGE ON SCHEMA app TO PUBLIC;
+GRANT USAGE ON SCHEMA gql_cms TO PUBLIC;
 GRANT SELECT, INSERT, UPDATE, DELETE ON
   gql_cms.users, gql_cms.user_roles, gql_cms.documents, gql_cms.document_acl, gql_cms.user_acl
 TO PUBLIC;  -- rely on RLS; tighten to your app role in production
