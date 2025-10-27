@@ -29,7 +29,8 @@ services:
         environment:
             PORT: 5433
         depends_on:
-            - gql-cms-db
+            gql-cms-db:
+                condition: service_healthy
         networks:
             - network
         ports:
@@ -46,7 +47,8 @@ services:
         environment:
             PORT: 5434
         depends_on:
-            - gql-cms-db
+            gql-cms-db:
+                condition: service_healthy
         networks:
             - network
         ports:

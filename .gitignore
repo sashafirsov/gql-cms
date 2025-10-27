@@ -37,6 +37,12 @@ yarn-error.log
 testem.log
 /typings
 
+# Environment variables (contains sensitive JWT keys)
+.env
+.env.local
+.env.*.local
+.env.*
+
 # System Files
 .DS_Store
 Thumbs.db
