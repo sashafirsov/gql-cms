@@ -4,7 +4,7 @@
     "license": "MIT",
     "scripts": {
         "start": "npm run build && npm run docker",
-        "build": "npx nx run-many --target=build --all",
+        "build": "bash bin/jwt_keys.sh && npx nx run-many --target=build --all",
         "lint": "npx nx run-many --target=lint --all",
         "test": "npx nx run-many --target=test --all",
         "e2e": "npx nx run-many --target=e2e --all",

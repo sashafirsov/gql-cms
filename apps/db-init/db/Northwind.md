@@ -708,43 +708,77 @@ WHERE NOT EXISTS (
 
 ### Next Steps
 
-1. **Install Dependencies**:
+1. **Install Dependencies**: ✅ Completed
    ```bash
    npm install argon2 jsonwebtoken uuid pg cookie-parser
    npm install -D @types/jsonwebtoken @types/uuid @types/cookie-parser
    ```
 
-2. **Configure Environment Variables** in `.env`:
+2. **Setup Environment**:
    ```bash
-   DATABASE_URL=postgresql://postgres:password@localhost:5432/gql_cms
-   JWT_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----...
-   JWT_PUBLIC_KEY=-----BEGIN PUBLIC KEY-----...
-   NODE_ENV=development
+   # Copy environment template
+   cp .env.example .env
+
+   # Edit .env and configure DATABASE_URL
+   # JWT keys will be auto-generated in next step
    ```
 
-3. **Generate JWT Keys**:
+3. **Build Project** (Auto-generates JWT keys):
    ```bash
-   # Generate private key
-   openssl genrsa -out jwt-private.pem 2048
-   # Generate public key
-   openssl rsa -in jwt-private.pem -pubout -out jwt-public.pem
-   # Copy keys to .env (single line, escaped newlines)
+   npm run build
+   # This runs bin/jwt_keys.sh which:
+   # - Generates 2048-bit RSA key pair
+   # - Stores keys in .env as JWT_PRIVATE_KEY and JWT_PUBLIC_KEY
+   # - Then builds all projects
    ```
 
-4. **Run Database Migrations**:
+   **Note**: JWT keys are automatically generated during build. The `bin/jwt_keys.sh` script is called before the build process. You can also manually generate keys with:
    ```bash
-   # Start database
-   docker-compose up gql-cms-db
-   # Migrations run automatically via db-init service
+   bash bin/jwt_keys.sh
    ```
 
-5. **Update Frontend** to use `/northwind/auth/*` endpoints and handle cookies
+4. **Start Services**:
+   ```bash
+   npm start
+   # Runs build (generates keys) + docker-compose up
+   # Database migrations run automatically via db-init service
 
-6. **Document API** in OpenAPI/Swagger
+   # API available at: http://localhost:5433
+   # GraphiQL: http://localhost:5433/graphiql
+   # Admin UI: http://localhost:4200
+   ```
 
-7. **Write integration tests**
+5. **Test Authentication**:
+   ```bash
+   # Register new user
+   curl -c cookies.txt -X POST http://localhost:5433/northwind/auth/register \
+     -H "Content-Type: application/json" \
+     -d '{"email":"test@example.com","password":"SecurePass123!","kind":"customer"}'
 
-8. **Deploy to staging** for QA
+   # Login
+   curl -c cookies.txt -X POST http://localhost:5433/northwind/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"email":"test@example.com","password":"SecurePass123!"}'
+
+   # Get current user
+   curl -b cookies.txt http://localhost:5433/northwind/auth/me
+   ```
+
+6. **Update Frontend** to use `/northwind/auth/*` endpoints and handle cookies
+
+7. **Document API** in OpenAPI/Swagger (optional)
+
+8. **Write integration tests** (optional)
+
+9. **Deploy to staging** for QA
+
+### Important Security Notes
+
+- ⚠️ `.env` file is in `.gitignore` and should **never** be committed to version control
+- ⚠️ JWT keys are sensitive credentials - keep them secure
+- ⚠️ Generate new keys for each environment (dev, staging, production)
+- ⚠️ For production, manually generate and securely store keys (don't rely on auto-generation)
+- ⚠️ Rotate keys periodically in production environments
 
 ---
 
@@ -861,3 +895,37 @@ This ensures even if authorization code is intercepted, attacker can't exchange 
 ---
 
 This proposal provides a comprehensive, secure, and scalable authentication system that integrates seamlessly with the existing Northwind ACL authorization model. The separation of authentication (who you are) from authorization (what you can do) maintains clean architectural boundaries while enabling multiple authentication methods per principal.
+
+#  Next Steps
+
+  To use the authentication system:
+
+1. Generate JWT keys:
+```bash
+    openssl genrsa -out jwt-private.pem 2048
+    openssl rsa -in jwt-private.pem -pubout -out jwt-public.pem
+```
+2. Configure environment variables in .env:
+```bash
+   JWT_PRIVATE_KEY=<contents of jwt-private.pem>
+   JWT_PUBLIC_KEY=<contents of jwt-public.pem>
+   DATABASE_URL=postgresql://postgres:password@localhost:5432/gql_cms
+```
+3. Start services:
+```bash
+    npm start  # Runs docker-compose, migrations auto-applied
+```
+4. Test authentication:
+## Register
+```bash
+    curl -X POST http://localhost:5433/northwind/auth/register \
+        -H "Content-Type: application/json" \
+        -d '{"email":"test@example.com","password":"SecurePass123!","kind":"customer"}'
+```
+
+## Login
+```bash
+    curl -X POST http://localhost:5433/northwind/auth/login \
+        -H "Content-Type: application/json" \
+        -d '{"email":"test@example.com","password":"SecurePass123!"}'
+```
