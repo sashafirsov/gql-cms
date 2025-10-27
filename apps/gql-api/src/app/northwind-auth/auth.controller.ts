@@ -86,7 +86,7 @@ export class AuthController {
         },
       };
 
-      res.json(response);
+      res.status(HttpStatus.OK).json(response);
     } catch (err: any) {
       throw new HttpException(
         'Invalid credentials',
@@ -117,7 +117,7 @@ export class AuthController {
       // Set new HttpOnly cookies
       this.setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
 
-      res.json({
+      res.status(HttpStatus.OK).json({
         success: true,
         message: 'Token refreshed',
       });
@@ -145,7 +145,7 @@ export class AuthController {
       // Clear cookies
       this.clearAuthCookies(res);
 
-      res.json({
+      res.status(HttpStatus.OK).json({
         success: true,
         message: 'Logout successful',
       });
@@ -174,7 +174,7 @@ export class AuthController {
       // Clear cookies
       this.clearAuthCookies(res);
 
-      res.json({
+      res.status(HttpStatus.OK).json({
         success: true,
         message: 'Logged out from all devices',
       });
@@ -199,7 +199,7 @@ export class AuthController {
 
       const principal = await this.authService.getPrincipalDetails(req.auth.userId);
 
-      res.json({
+      res.status(HttpStatus.OK).json({
         success: true,
         principal: {
           id: principal.principalId,
