@@ -77,8 +77,7 @@ see [System 2 Implementation](#system-2-northwind-zanzibar-implementation-workin
   └─ RLS policies read current_setting('app.principal_id')
 ```
 
-**Key concept**: NestJS verifies cookies → attaches `req.auth` → PostGraphile `pgSettings` 
-sets session variables per request → RLS policies enforce access.
+**Key concept**: NestJS verifies cookies → attaches `req.auth` → PostGraphile `pgSettings` sets session variables per request → RLS policies enforce access.
 
 ---
 
@@ -195,8 +194,7 @@ export class AuthMiddleware implements NestMiddleware {
 
 ## 4) Auth Endpoints (Password + OAuth)
 
-⚠️ **IMPLEMENTATION STATUS**: The patterns below describe how to implement auth for `gql_cms` schema, but are **NOT CURRENTLY IMPLEMENTED** for `gql_cms`. 
-For a **working reference implementation**, see [System 2: Northwind Auth](#system-2-northwind-zanzibar-implementation-working) below, which includes:
+⚠️ **IMPLEMENTATION STATUS**: The patterns below describe how to implement auth for `gql_cms` schema, but are **NOT CURRENTLY IMPLEMENTED** for `gql_cms`. For a **working reference implementation**, see [System 2: Northwind Auth](#system-2-northwind-zanzibar-implementation-working) below, which includes:
 - `apps/gql-api/src/app/northwind-auth/auth.service.ts` - Complete auth service with argon2, JWT, and token rotation
 - `apps/gql-api/src/app/northwind-auth/auth.controller.ts` - REST endpoints
 - `apps/db-init/db/init/90-northwind-auth-functions.sql` - Database functions
