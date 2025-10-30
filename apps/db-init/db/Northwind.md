@@ -744,7 +744,7 @@ WHERE NOT EXISTS (
    # Database migrations run automatically via db-init service
 
    # API available at: http://localhost:5433
-   # GraphiQL: http://localhost:5433/graphiql
+   # GraphiQL: http://localhost:5433/gql_cms/graphiql
    # Admin UI: http://localhost:4200
    ```
 

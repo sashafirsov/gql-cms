@@ -1,16 +1,18 @@
 # GraphQL CMS
 A reference project with best practices of
-* ✓ monorepo 
-* simple CMS with native PostgreSQL ACL
-* with GraphQL API and NestJS backend
-* NextJS Admin UI
+* ✓ monorepo
+* Two ACL/authorization systems (simple per-resource + Zanzibar ReBAC)
+* Native PostgreSQL Row-Level Security (RLS)
+* GraphQL API with PostGraphile and NestJS backend
+* Complete authentication with JWT + argon2 + token rotation
+* NextJS Admin UI with Apollo Client
 * Semantic UI Theme
 
 ## Sub-projects
-* `admin-ui` - NextJS Admin UI
-* `gql-api` - GraphQL API for CMS
-* `db-init` - Synthetic Persona DB initialization service
-* `gql-cms-db` - PostgreSQL in Docker by PostGraphile sample
+* `admin-ui` - NextJS Admin UI with Apollo Client
+* `gql-api` - NestJS backend with PostGraphile GraphQL API
+* `db-init` - Database initialization service with migration scripts
+* `gql-cms-db` - PostgreSQL 15 in Docker with RLS policies
 
 # Start development
     npm install
@@ -45,6 +47,7 @@ will run the gql-api application. Navigate to `http://localhost:5433/api`. The a
 
 * GraphQL console is available at http://localhost:5433/graphiql
 * GraphQL API is available at http://localhost:5433/graphql
+* Authentication endpoints at http://localhost:5433/northwind/auth/* (working implementation)
 
 ## Admin UI
     nx serve admin-ui
@@ -75,7 +78,62 @@ Notes:
 
 For API working with a live database, run it in Docker as above. Without API available, the Admin UI would use Synthetic Persona mock data from `db-init`.
 
-# Athor's notes
+## Authentication & Authorization
+
+This project demonstrates **two complete authorization systems**:
+
+### 1. Simple Per-Resource ACL (`gql_cms` schema)
+- **Status**: Database schema and RLS policies implemented
+- **Tables**: `gql_cms.users`, `gql_cms.documents`, `gql_cms.user_roles`, `gql_cms.document_acl`
+- **Auth**: Not yet implemented (patterns documented in `docs/ACL.md`)
+- **Use case**: Learning, simple CMS projects
+
+### 2. Zanzibar-style ReBAC (`acl` schema) ✅ Production-Ready
+- **Status**: Fully implemented and tested
+- **Tables**: `acl.principals`, `acl.tuples`, `acl.objects`, `acl.user_credentials`, `acl.refresh_tokens`
+- **Auth**: Complete authentication at `/northwind/auth/*` endpoints
+- **Features**:
+  - Password auth with argon2id hashing
+  - RS256 JWT with access + refresh tokens
+  - Token rotation with family tracking
+  - HttpOnly secure cookies
+  - E2E tested
+- **Use case**: Production multi-tenant systems
+
+### Quick Auth Test
+
+```bash
+# Register a new user
+curl -X POST http://localhost:5433/northwind/auth/register \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"test@example.com","password":"pass123","kind":"customer"}' \
+  -c cookies.txt
+
+# Get current user info
+curl http://localhost:5433/northwind/auth/me -b cookies.txt
+
+# Query GraphQL with authentication
+curl http://localhost:5433/graphql \
+  -H 'Content-Type: application/json' \
+  -b cookies.txt \
+  -d '{"query":"{ allCustomers { nodes { customerId companyName } } }"}'
+```
+
+See `docs/ACL.md` for complete documentation.
+
+## Database Schema
+
+The project includes multiple schemas for different purposes:
+
+- **`gql_cms` schema**: Simple CMS with documents and users
+  - Demo tables: `forum_users`, `post` (legacy examples)
+  - ACL tables: `users`, `documents`, `user_roles`, `document_acl`
+- **`acl` schema**: Zanzibar authorization system
+  - Core: `principals`, `tuples`, `objects`, `relations`
+  - Auth: `user_credentials`, `oauth_identities`, `refresh_tokens`
+- **`northwind` schema**: Sample e-commerce database (products, orders, customers)
+
+# Author's notes
 The project is bootstrapped with [Nx](https://nx.dev). The `gql-api` is built with [NestJS](https://nestjs.com/) and [Graphile](https://www.graphile.org/). 
 The `admin-ui` is built with [NextJS](https://nextjs.org/).
 
