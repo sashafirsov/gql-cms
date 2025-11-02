@@ -24,14 +24,14 @@ export function LoginComponent({
   const [showPassword, setShowPassword] = useState(false);
 
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
+    setEmail(e.currentTarget.value);
     if (error && onClearError) {
       onClearError();
     }
   };
 
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
+    setPassword(e.currentTarget.value);
     if (error && onClearError) {
       onClearError();
     }

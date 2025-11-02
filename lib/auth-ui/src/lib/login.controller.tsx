@@ -68,13 +68,15 @@ export function LoginController({
         });
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
+          const errorData = (await response
+            .json()
+            .catch(() => ({}))) as Partial<LoginResponse>;
           throw new Error(
             errorData.message || `Login failed: ${response.statusText}`
           );
         }
 
-        const data: LoginResponse = await response.json();
+        const data = (await response.json()) as LoginResponse;
 
         if (!data.success) {
           throw new Error(data.message || 'Login failed');

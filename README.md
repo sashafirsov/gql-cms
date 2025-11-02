@@ -15,7 +15,7 @@ A reference project with best practices of
 * `gql-cms-db` - PostgreSQL 15 in Docker with RLS policies
 
 # Start development
-    npm install
+    npm install --legacy-peer-deps # @storybook/test-runner still in legacy mode
     npm start # would build and run all applications above in docker
 
 Each application also could be run separately.
