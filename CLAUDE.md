@@ -367,3 +367,5 @@ When debugging:
 - `docs/ACL.md` - Complete authentication & authorization blueprint
 - `README.md` - Project overview and quick start
 - `NOTES.md` - Developer notes and build instructions
+- UI components in authentication flows reside in `lib/auth-ui/src/lib`
+- UI components are split into pure functional react components with pattern `*.component.tsx` and controllers with business logic with pattern `*.controller.tsx`. Examples are `login.component.tsx` and `login.controller.tsx`
