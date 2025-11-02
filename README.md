@@ -49,6 +49,10 @@ will run the gql-api application. Navigate to `http://localhost:5433/api`. The a
 * GraphQL API is available at http://localhost:5433/graphql
 * Authentication endpoints at http://localhost:5433/northwind/auth/* (working implementation)
 
+## UI components development
+* [auth-ui](lib/auth-ui/README.md) - authentication components
+* cms-ui TBD.
+
 ## Admin UI
     nx serve admin-ui
 * Admin UI is available at http://localhost:4200/
