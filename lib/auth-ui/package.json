@@ -1,5 +1,9 @@
 {
     "name": "@gql-cms/auth-ui",
+    "scripts": {
+        "sb": "cd ../..; nx storybook @gql-cms/auth-ui --port=44555",
+        "test:sb": "cd ../..; nx test-storybook @gql-cms/auth-ui --url http://localhost:44555/"
+    },
     "version": "0.0.1",
     "type": "module",
     "main": "./dist/index.js",

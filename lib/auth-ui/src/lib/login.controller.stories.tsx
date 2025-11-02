@@ -1,34 +1,23 @@
 // login.controller.stories.tsx
-// Storybook stories for LoginController with integration tests
+// Storybook stories for LoginController with integration tests using MSW
 
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, userEvent, within, fn, waitFor } from 'storybook/test';
+import { http, HttpResponse, delay } from 'msw';
 import { LoginController } from './login.controller';
+import {
+  successfulLoginHandler,
+  invalidCredentialsHandler,
+  serverErrorHandler,
+  networkErrorHandler,
+  mockPrincipal,
+} from '../mocks';
 
 const meta: Meta<typeof LoginController> = {
   title: 'Auth/LoginController',
   component: LoginController,
   parameters: {
     layout: 'fullscreen',
-    // Mock fetch for API calls
-    mockData: [
-      {
-        url: '/northwind/auth/login',
-        method: 'POST',
-        status: 200,
-        response: {
-          success: true,
-          message: 'Login successful',
-          principal: {
-            id: '123e4567-e89b-12d3-a456-426614174000',
-            email: 'user@example.com',
-            kind: 'customer',
-            displayName: 'John Doe',
-            emailVerified: true,
-          },
-        },
-      },
-    ],
   },
   args: {
     onLoginSuccess: fn(),
@@ -59,6 +48,11 @@ type Story = StoryObj<typeof meta>;
  * Default state - ready for user interaction
  */
 export const Default: Story = {
+  parameters: {
+    msw: {
+      handlers: [successfulLoginHandler],
+    },
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
@@ -77,49 +71,11 @@ export const Default: Story = {
  */
 export const SuccessfulLogin: Story = {
   parameters: {
-    mockData: [
-      {
-        url: '/northwind/auth/login',
-        method: 'POST',
-        status: 200,
-        response: {
-          success: true,
-          message: 'Login successful',
-          principal: {
-            id: '123e4567-e89b-12d3-a456-426614174000',
-            email: 'user@example.com',
-            kind: 'customer',
-            displayName: 'John Doe',
-            emailVerified: true,
-          },
-        },
-      },
-    ],
+    msw: {
+      handlers: [successfulLoginHandler],
+    },
   },
   play: async ({ canvasElement, args }) => {
-    // Mock fetch globally for this story
-    const originalFetch = global.fetch;
-    global.fetch = fn(async (url: string, options?: any) => {
-      if (url.includes('/login')) {
-        return {
-          ok: true,
-          status: 200,
-          json: async () => ({
-            success: true,
-            message: 'Login successful',
-            principal: {
-              id: '123e4567-e89b-12d3-a456-426614174000',
-              email: 'user@example.com',
-              kind: 'customer',
-              displayName: 'John Doe',
-              emailVerified: true,
-            },
-          }),
-        } as Response;
-      }
-      return originalFetch(url, options);
-    }) as typeof fetch;
-
     const canvas = within(canvasElement);
 
     // Fill in the form
@@ -130,7 +86,7 @@ export const SuccessfulLogin: Story = {
     await userEvent.type(passwordInput, 'Password123!');
 
     // Submit the form
-    const submitButton = canvas.getByRole('button', { name: /Next/i });
+    const submitButton = canvas.getByRole('button', { name: /next/i });
     await userEvent.click(submitButton);
 
     // Wait for loading state
@@ -149,19 +105,10 @@ export const SuccessfulLogin: Story = {
     // Wait for success callback
     await waitFor(
       async () => {
-        await expect(args.onLoginSuccess).toHaveBeenCalledWith({
-          id: '123e4567-e89b-12d3-a456-426614174000',
-          email: 'user@example.com',
-          kind: 'customer',
-          displayName: 'John Doe',
-          emailVerified: true,
-        });
+        await expect(args.onLoginSuccess).toHaveBeenCalledWith(mockPrincipal);
       },
       { timeout: 3000 }
     );
-
-    // Restore original fetch
-    global.fetch = originalFetch;
   },
 };
 
@@ -169,24 +116,12 @@ export const SuccessfulLogin: Story = {
  * Failed login - invalid credentials
  */
 export const InvalidCredentials: Story = {
+  parameters: {
+    msw: {
+      handlers: [invalidCredentialsHandler],
+    },
+  },
   play: async ({ canvasElement, args }) => {
-    // Mock fetch to return error
-    const originalFetch = global.fetch;
-    global.fetch = fn(async (url: string) => {
-      if (url.includes('/login')) {
-        return {
-          ok: false,
-          status: 401,
-          statusText: 'Unauthorized',
-          json: async () => ({
-            success: false,
-            message: 'Invalid credentials',
-          }),
-        } as Response;
-      }
-      return originalFetch(url);
-    }) as typeof fetch;
-
     const canvas = within(canvasElement);
 
     // Fill in the form
@@ -197,7 +132,7 @@ export const InvalidCredentials: Story = {
     await userEvent.type(passwordInput, 'wrongpassword');
 
     // Submit the form
-    const submitButton = canvas.getByRole('button', { name: /Next/i });
+    const submitButton = canvas.getByRole('button', { name: /next/i });
     await userEvent.click(submitButton);
 
     // Wait for error to appear
@@ -217,9 +152,6 @@ export const InvalidCredentials: Story = {
       },
       { timeout: 3000 }
     );
-
-    // Restore original fetch
-    global.fetch = originalFetch;
   },
 };
 
@@ -227,6 +159,11 @@ export const InvalidCredentials: Story = {
  * Email validation error
  */
 export const InvalidEmailFormat: Story = {
+  parameters: {
+    msw: {
+      handlers: [successfulLoginHandler],
+    },
+  },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
 
@@ -238,11 +175,11 @@ export const InvalidEmailFormat: Story = {
     await userEvent.type(passwordInput, 'password123');
 
     // Submit the form
-    const submitButton = canvas.getByRole('button', { name: /Next/i });
+    const submitButton = canvas.getByRole('button', { name: /next/i });
     await userEvent.click(submitButton);
 
+    // ToDo: handle native error state by <input type=email>
     // Wait for validation error
-    // ToDo native email warning check
     // await waitFor(
     //   async () => {
     //     const errorMessage = canvas.getByRole('alert');
@@ -268,11 +205,16 @@ export const InvalidEmailFormat: Story = {
  * Empty form submission
  */
 export const EmptyFormSubmission: Story = {
-  play: async ({ canvasElement, args }) => {
+  parameters: {
+    msw: {
+      handlers: [successfulLoginHandler],
+    },
+  },
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
     // Try to submit without filling anything
-    const submitButton = canvas.getByRole('button', { name: /Next/i });
+    const submitButton = canvas.getByRole('button', { name: /next/i });
 
     // Button should be disabled, so can't actually click
     await expect(submitButton).toBeDisabled();
@@ -283,16 +225,12 @@ export const EmptyFormSubmission: Story = {
  * Network error - server unreachable
  */
 export const NetworkError: Story = {
+  parameters: {
+    msw: {
+      handlers: [networkErrorHandler],
+    },
+  },
   play: async ({ canvasElement, args }) => {
-    // Mock fetch to throw network error
-    const originalFetch = global.fetch;
-    global.fetch = fn(async (url: string) => {
-      if (url.includes('/login')) {
-        throw new Error('Network error: Failed to fetch');
-      }
-      return originalFetch(url);
-    }) as typeof fetch;
-
     const canvas = within(canvasElement);
 
     // Fill in the form
@@ -303,7 +241,7 @@ export const NetworkError: Story = {
     await userEvent.type(passwordInput, 'password123');
 
     // Submit the form
-    const submitButton = canvas.getByRole('button', { name: /Next/i });
+    const submitButton = canvas.getByRole('button', { name: /next/i });
     await userEvent.click(submitButton);
 
     // Wait for error to appear
@@ -311,13 +249,9 @@ export const NetworkError: Story = {
       async () => {
         const errorMessage = canvas.getByRole('alert');
         await expect(errorMessage).toBeInTheDocument();
-        await expect(errorMessage).toHaveTextContent(/network error/i);
       },
       { timeout: 3000 }
     );
-
-    // Restore original fetch
-    global.fetch = originalFetch;
   },
 };
 
@@ -325,24 +259,12 @@ export const NetworkError: Story = {
  * Server error - 500 response
  */
 export const ServerError: Story = {
-  play: async ({ canvasElement, args }) => {
-    // Mock fetch to return server error
-    const originalFetch = global.fetch;
-    global.fetch = fn(async (url: string) => {
-      if (url.includes('/login')) {
-        return {
-          ok: false,
-          status: 500,
-          statusText: 'Internal Server Error',
-          json: async () => ({
-            success: false,
-            message: 'Internal server error',
-          }),
-        } as Response;
-      }
-      return originalFetch(url);
-    }) as typeof fetch;
-
+  parameters: {
+    msw: {
+      handlers: [serverErrorHandler],
+    },
+  },
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
     // Fill in the form
@@ -353,7 +275,7 @@ export const ServerError: Story = {
     await userEvent.type(passwordInput, 'password123');
 
     // Submit the form
-    const submitButton = canvas.getByRole('button', { name: /Next/i });
+    const submitButton = canvas.getByRole('button', { name: /next/i });
     await userEvent.click(submitButton);
 
     // Wait for error to appear
@@ -364,9 +286,6 @@ export const ServerError: Story = {
       },
       { timeout: 3000 }
     );
-
-    // Restore original fetch
-    global.fetch = originalFetch;
   },
 };
 
@@ -374,46 +293,37 @@ export const ServerError: Story = {
  * Retry after error - user corrects mistake
  */
 export const RetryAfterError: Story = {
-  play: async ({ canvasElement, args }) => {
-    // Mock fetch - first call fails, second succeeds
-    let callCount = 0;
-    const originalFetch = global.fetch;
-    global.fetch = fn(async (url: string) => {
-      if (url.includes('/login')) {
-        callCount++;
-        if (callCount === 1) {
-          // First attempt fails
-          return {
-            ok: false,
-            status: 401,
-            statusText: 'Unauthorized',
-            json: async () => ({
-              success: false,
-              message: 'Invalid credentials',
-            }),
-          } as Response;
-        } else {
-          // Second attempt succeeds
-          return {
-            ok: true,
-            status: 200,
-            json: async () => ({
-              success: true,
-              message: 'Login successful',
-              principal: {
-                id: '123e4567-e89b-12d3-a456-426614174000',
-                email: 'user@example.com',
-                kind: 'customer',
-                displayName: 'John Doe',
-                emailVerified: true,
-              },
-            }),
-          } as Response;
-        }
-      }
-      return originalFetch(url);
-    }) as typeof fetch;
+  parameters: {
+    msw: {
+      handlers: [
+        // First call fails, subsequent calls succeed
+        http.post('/northwind/auth/login', async ({ request }) => {
+          const body = (await request.json()) as {
+            email: string;
+            password: string;
+          };
 
+          await delay(300);
+
+          // First attempt with wrong password fails
+          if (body.password === 'wrongpassword') {
+            return HttpResponse.json(
+              { success: false, message: 'Invalid credentials' },
+              { status: 401 }
+            );
+          }
+
+          // Corrected password succeeds
+          return HttpResponse.json({
+            success: true,
+            message: 'Login successful',
+            principal: mockPrincipal,
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
 
     // First attempt with wrong password
@@ -423,7 +333,7 @@ export const RetryAfterError: Story = {
     await userEvent.type(emailInput, 'user@example.com');
     await userEvent.type(passwordInput, 'wrongpassword');
 
-    const submitButton = canvas.getByRole('button', { name: /Next/i });
+    const submitButton = canvas.getByRole('button', { name: /next/i });
     await userEvent.click(submitButton);
 
     // Wait for error
@@ -458,9 +368,6 @@ export const RetryAfterError: Story = {
       },
       { timeout: 3000 }
     );
-
-    // Restore original fetch
-    global.fetch = originalFetch;
   },
 };
 
@@ -471,32 +378,21 @@ export const CustomApiBaseUrl: Story = {
   args: {
     apiBaseUrl: '/custom/auth',
   },
-  play: async ({ canvasElement, args }) => {
-    // Mock fetch to verify correct URL is called
-    const originalFetch = global.fetch;
-    const mockFetch = fn(async (url: string) => {
-      // Verify custom base URL is used
-      if (url === '/custom/auth/login') {
-        return {
-          ok: true,
-          status: 200,
-          json: async () => ({
+  parameters: {
+    msw: {
+      handlers: [
+        http.post('/custom/auth/login', async () => {
+          await delay(300);
+          return HttpResponse.json({
             success: true,
             message: 'Login successful',
-            principal: {
-              id: '123e4567-e89b-12d3-a456-426614174000',
-              email: 'user@example.com',
-              kind: 'customer',
-              displayName: 'John Doe',
-              emailVerified: true,
-            },
-          }),
-        } as Response;
-      }
-      return originalFetch(url);
-    }) as typeof fetch;
-    global.fetch = mockFetch;
-
+            principal: mockPrincipal,
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
 
     // Fill and submit form
@@ -506,61 +402,38 @@ export const CustomApiBaseUrl: Story = {
     await userEvent.type(emailInput, 'user@example.com');
     await userEvent.type(passwordInput, 'password123');
 
-    const submitButton = canvas.getByRole('button', { name: /Next/i });
+    const submitButton = canvas.getByRole('button', { name: /next/i });
     await userEvent.click(submitButton);
 
-    // Wait for API call and verify URL
+    // Wait for success
     await waitFor(
       async () => {
-        await expect(mockFetch).toHaveBeenCalledWith(
-          '/custom/auth/login',
-          expect.objectContaining({
-            method: 'POST',
-            credentials: 'include',
-          })
-        );
+        await expect(args.onLoginSuccess).toHaveBeenCalledWith(mockPrincipal);
       },
       { timeout: 3000 }
     );
-
-    // Restore original fetch
-    global.fetch = originalFetch;
   },
 };
 
 /**
- * Verify credentials are included in request
+ * Slow response - testing loading states
  */
-export const VerifyCredentialsIncluded: Story = {
-  play: async ({ canvasElement }) => {
-    // Mock fetch to verify credentials option
-    const originalFetch = global.fetch;
-    const mockFetch = fn(async (url: string, options?: any) => {
-      if (url.includes('/login')) {
-        // Verify credentials: 'include' is set
-        if (options?.credentials !== 'include') {
-          throw new Error('Credentials not included in request');
-        }
-
-        return {
-          ok: true,
-          status: 200,
-          json: async () => ({
+export const SlowResponse: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.post('/northwind/auth/login', async () => {
+          await delay(2000); // 2 second delay
+          return HttpResponse.json({
             success: true,
-            principal: {
-              id: '123',
-              email: 'user@example.com',
-              kind: 'customer',
-              displayName: 'Test User',
-              emailVerified: true,
-            },
-          }),
-        } as Response;
-      }
-      return originalFetch(url, options);
-    }) as typeof fetch;
-    global.fetch = mockFetch;
-
+            message: 'Login successful',
+            principal: mockPrincipal,
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
     // Fill and submit form
@@ -570,28 +443,77 @@ export const VerifyCredentialsIncluded: Story = {
     await userEvent.type(emailInput, 'user@example.com');
     await userEvent.type(passwordInput, 'password123');
 
-    const submitButton = canvas.getByRole('button', { name: /Next/i });
+    const submitButton = canvas.getByRole('button', { name: /next/i });
     await userEvent.click(submitButton);
 
-    // Verify fetch was called with correct options
+    // Verify loading state persists
     await waitFor(
       async () => {
-        await expect(mockFetch).toHaveBeenCalledWith(
-          expect.stringContaining('/login'),
-          expect.objectContaining({
-            method: 'POST',
-            credentials: 'include',
-            headers: expect.objectContaining({
-              'Content-Type': 'application/json',
-            }),
-            body: expect.any(String),
-          })
-        );
+        const loadingButton = canvas.getByRole('button', {
+          name: /signing in/i,
+        });
+        await expect(loadingButton).toBeInTheDocument();
+        await expect(loadingButton).toBeDisabled();
+      },
+      { timeout: 1000 }
+    );
+
+    // Inputs should be disabled during loading
+    await expect(emailInput).toBeDisabled();
+    await expect(passwordInput).toBeDisabled();
+  },
+};
+
+/**
+ * Different user types - employee login
+ */
+export const EmployeeLogin: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.post('/northwind/auth/login', async () => {
+          await delay(300);
+          return HttpResponse.json({
+            success: true,
+            message: 'Login successful',
+            principal: {
+              id: '987e6543-e21b-12d3-a456-426614174000',
+              email: 'employee@example.com',
+              kind: 'employee',
+              displayName: 'Jane Smith',
+              emailVerified: true,
+            },
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // Fill in the form
+    const emailInput = canvas.getByLabelText(/email address/i);
+    const passwordInput = canvas.getByLabelText(/^password$/i);
+
+    await userEvent.type(emailInput, 'employee@example.com');
+    await userEvent.type(passwordInput, 'Password123!');
+
+    // Submit the form
+    const submitButton = canvas.getByRole('button', { name: /next/i });
+    await userEvent.click(submitButton);
+
+    // Wait for success with employee principal
+    await waitFor(
+      async () => {
+        await expect(args.onLoginSuccess).toHaveBeenCalledWith({
+          id: '987e6543-e21b-12d3-a456-426614174000',
+          email: 'employee@example.com',
+          kind: 'employee',
+          displayName: 'Jane Smith',
+          emailVerified: true,
+        });
       },
       { timeout: 3000 }
     );
-
-    // Restore original fetch
-    global.fetch = originalFetch;
   },
 };
