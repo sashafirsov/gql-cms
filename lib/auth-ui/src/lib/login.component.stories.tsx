@@ -62,7 +62,7 @@ export const Default: Story = {
     await expect(passwordInput).toBeInTheDocument();
     await expect(passwordInput).toBeEnabled();
 
-    const submitButton = canvas.getByRole('button', { name: /sign in/i });
+    const submitButton = canvas.getByRole('button', { name: /Next/i });
     await expect(submitButton).toBeInTheDocument();
     await expect(submitButton).toBeDisabled(); // Disabled when empty
 
@@ -139,7 +139,7 @@ export const FormInteraction: Story = {
     // Get form elements
     const emailInput = canvas.getByLabelText(/email address/i);
     const passwordInput = canvas.getByLabelText(/^password$/i);
-    const submitButton = canvas.getByRole('button', { name: /sign in/i });
+    const submitButton = canvas.getByRole('button', { name: /Next/i });
 
     // Initially submit button should be disabled
     await expect(submitButton).toBeDisabled();
@@ -253,7 +253,7 @@ export const EmptyFormValidation: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
 
-    const submitButton = canvas.getByRole('button', { name: /sign in/i });
+    const submitButton = canvas.getByRole('button', { name: /Next/i });
 
     // Submit button should be disabled when form is empty
     await expect(submitButton).toBeDisabled();
@@ -276,7 +276,7 @@ export const PartialFormEmail: Story = {
     const canvas = within(canvasElement);
 
     const emailInput = canvas.getByLabelText(/email address/i);
-    const submitButton = canvas.getByRole('button', { name: /sign in/i });
+    const submitButton = canvas.getByRole('button', { name: /Next/i });
 
     // Fill only email
     await userEvent.type(emailInput, 'user@example.com');
@@ -299,7 +299,7 @@ export const PartialFormPassword: Story = {
     const canvas = within(canvasElement);
 
     const passwordInput = canvas.getByLabelText(/^password$/i);
-    const submitButton = canvas.getByRole('button', { name: /sign in/i });
+    const submitButton = canvas.getByRole('button', { name: /Next/i });
 
     // Fill only password
     await userEvent.type(passwordInput, 'password123');
@@ -343,7 +343,7 @@ export const KeyboardNavigation: Story = {
 
     // Tab to submit button
     await userEvent.tab();
-    const submitButton = canvas.getByRole('button', { name: /sign in/i });
+    const submitButton = canvas.getByRole('button', { name: /Next/i });
     await expect(submitButton).toHaveFocus();
 
     // Press Enter to submit

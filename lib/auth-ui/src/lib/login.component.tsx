@@ -179,7 +179,7 @@ export function LoginComponent({
                   <span>Signing in...</span>
                 </>
               ) : (
-                'Sign In'
+                'Next'
               )}
             </button>
           </div>
