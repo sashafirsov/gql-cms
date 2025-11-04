@@ -3,3 +3,6 @@
 export * from './lib/auth-ui';
 export * from './lib/login.controller';
 export * from './lib/login.component';
+export * from './lib/login-link.component';
+export * from './lib/profile-link.component';
+export * from './lib/profile-link.controller';
