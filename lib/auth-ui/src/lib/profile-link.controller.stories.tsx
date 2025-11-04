@@ -4,6 +4,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { expect, within, fn, waitFor } from 'storybook/test';
 import { http, HttpResponse, delay } from 'msw';
+import type { Decorator } from '@storybook/react';
+
 import { ProfileLinkController } from './profile-link.controller';
 
 const meta: Meta<typeof ProfileLinkController> = {
@@ -39,6 +41,13 @@ const meta: Meta<typeof ProfileLinkController> = {
 export default meta;
 
 type Story = StoryObj<typeof meta>;
+
+const decorators: Decorator[]  = [
+    (Story) => {
+        sessionStorage.clear();
+        return <Story />;
+    },
+];
 
 /**
  * Default state - checking authentication
@@ -88,6 +97,7 @@ export const Authenticated: Story = {
         apiBaseUrl: '/northwind/auth',
         showAvatar: true,
     },
+    decorators,
     parameters: {
         msw: {
             handlers: [
@@ -110,17 +120,8 @@ export const Authenticated: Story = {
     play: async ({ canvasElement, args }) => {
         const canvas = within(canvasElement);
 
-        // Wait for auth check to complete
-        await waitFor(
-            async () => {
-                const profileLink = canvas.getByTestId('profile-link');
-                await expect(profileLink).toBeInTheDocument();
-            },
-            { timeout: 3000 }
-        );
-
         // Verify ProfileLink is shown
-        const profileLink = canvas.getByTestId('profile-link');
+        const profileLink = await canvas.findByTestId('profile-link');
         await expect(profileLink).toHaveTextContent('John Doe');
         await expect(profileLink).toHaveAttribute('href', '/en/profile');
 
@@ -160,12 +161,7 @@ export const NotAuthenticated: Story = {
             ],
         },
     },
-    decorators: [
-        (Story) => {
-            sessionStorage.clear();
-            return <Story />;
-        },
-    ],
+    decorators,
     play: async ({ canvasElement, args }) => {
         const canvas = within(canvasElement);
 
@@ -295,6 +291,7 @@ export const EmployeeUser: Story = {
         apiBaseUrl: '/northwind/auth',
         showAvatar: true,
     },
+    decorators,
     parameters: {
         msw: {
             handlers: [
@@ -343,6 +340,7 @@ export const WithoutAvatar: Story = {
         apiBaseUrl: '/northwind/auth',
         showAvatar: false,
     },
+    decorators,
     parameters: {
         msw: {
             handlers: [
@@ -437,6 +435,7 @@ export const CustomAPIBaseURL: Story = {
         apiBaseUrl: '/custom/auth',
         showAvatar: true,
     },
+    decorators,
     parameters: {
         msw: {
             handlers: [
