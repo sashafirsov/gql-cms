@@ -10,6 +10,7 @@
     },
     "dependencies": {
         "@apollo/client": "4.0.7",
+        "@gql-cms/auth-ui": "*",
         "next": "15.5.6",
         "react": "19.2.0",
         "react-dom": "19.2.0",
