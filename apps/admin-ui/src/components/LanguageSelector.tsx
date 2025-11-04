@@ -29,7 +29,7 @@ export const LanguageSelector = () => {
       <details ref={detailsRef} className={styles.dropdown}>
         <summary className={styles.trigger} role="button" aria-label="Open language menu">
                     <span className={styles.current}>
-                        <Image src={`https://cdn.ipregistry.co/flags/emojitwo/${current.flag}.svg`} alt="" />
+                        <Image src={`https://cdn.ipregistry.co/flags/emojitwo/${current.flag}.svg`} alt="" width={24} height={24} />
                       {current.langName} {current.flag}
                     </span>
           <span className={styles.caret} aria-hidden>▾</span>
@@ -37,7 +37,7 @@ export const LanguageSelector = () => {
         <div className={styles.menu} role="radiogroup" aria-label="Language selector">
           {entries.map(([code, data]) => (
             <label key={code} className={styles.option} data-selected={language === code || undefined}>
-              <Image src={`https://cdn.ipregistry.co/flags/emojitwo/${data.flag}.svg`} alt="" />
+              <Image src={`https://cdn.ipregistry.co/flags/emojitwo/${data.flag}.svg`} alt="" width={24} height={24}/>
               <span>{data.langName}</span>
               <input
                 className={styles.radio}
