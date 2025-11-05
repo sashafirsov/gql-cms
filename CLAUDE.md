@@ -175,12 +175,24 @@ Located in `apps/db-init/db/init/`:
 - `24-gql-cms-seed.sql`, `30-gql-cms-seed.sql` - Seed data
 
 ### Core Tables
-- `gql_cms.users` - User accounts (email, full_name, auth_provider)
+
+**`gql_cms` Schema:**
+- `gql_cms.users` - User accounts for ACL system (email, full_name, auth_provider)
 - `gql_cms.documents` - Documents/URLs (full_url, short_url, comment)
 - `gql_cms.roles` - Global role definitions (admin, manager, bot, authorizer, owner)
 - `gql_cms.user_roles` - Users assigned to global roles
 - `gql_cms.document_acl` - Per-document access control
 - `gql_cms.user_acl` - Per-user access control
+- `gql_cms.forum_users` - Legacy demo table (renamed from `user` to avoid naming conflict)
+- `gql_cms.post` - Legacy demo posts table
+
+**`acl` Schema (Zanzibar):**
+- `acl.principals` - Users, groups, services
+- `acl.tuples` - Authorization tuples (subject, relation, object)
+- `acl.objects` - Resource catalog
+- `acl.user_credentials` - Password auth (argon2id hashes)
+- `acl.oauth_identities` - OAuth/OIDC provider links
+- `acl.refresh_tokens` - JWT refresh token ledger
 
 ## Frontend Architecture (admin-ui)
 
@@ -211,22 +223,37 @@ Located in `apps/db-init/db/init/`:
 - `src/main.ts` - Application bootstrap
 
 ### PostGraphile Configuration
-PostGraphile is mounted at `/graphql` and automatically generates:
+PostGraphile is mounted at `/graphql` (currently serves `gql_cms` schema) and automatically generates:
 - GraphQL schema from PostgreSQL tables/views
 - Queries, mutations, and subscriptions
 - GraphiQL interface (dev only)
 
 **Important**: PostGraphile respects RLS policies. The schema exposes what the current database role can see.
 
-### Authentication Flow (Planned)
-See `docs/ACL.md` for the complete authentication architecture:
-1. Client authenticates via `/auth/login` or OAuth (`/auth/:provider/start`)
+**Note**: The endpoint is currently at `/graphql` but should ideally be namespaced to `/gql_cms/graphql` to distinguish from potential future endpoints for other schemas.
+
+### Authentication Flow
+
+**Two Authentication Systems:**
+
+1. **`gql_cms` Schema** (Not Implemented)
+   - Theoretical endpoints at `/gql_cms/auth/*` (see `docs/ACL.md` for patterns)
+   - Database schema ready, but no auth endpoints exist
+
+2. **`acl` Schema (Northwind)** ✅ **Working Implementation**
+   - Endpoints at `/northwind/auth/*` (register, login, logout, refresh, me)
+   - Complete authentication with argon2id + RS256 JWT + token rotation
+   - Files: `apps/gql-api/src/app/northwind-auth/`
+   - E2E tested: `apps/gql-api-e2e/src/gql-api/northwind-auth.spec.ts`
+
+**Authentication Flow:**
+1. Client authenticates via `/northwind/auth/login` (working) or `/northwind/auth/register`
 2. Server sets HttpOnly cookies (`access_token`, `refresh_token`)
 3. `AuthMiddleware` verifies JWT from cookie and sets `req.auth`
 4. PostGraphile's `pgSettings` function maps `req.auth` to PostgreSQL session variables
 5. RLS policies enforce access control
 
-Currently, `auth.middleware.ts` is a stub - implement according to ACL.md blueprint.
+See `docs/ACL.md` for complete documentation of both systems.
 
 ## Testing Strategy
 
@@ -340,3 +367,5 @@ When debugging:
 - `docs/ACL.md` - Complete authentication & authorization blueprint
 - `README.md` - Project overview and quick start
 - `NOTES.md` - Developer notes and build instructions
+- UI components in authentication flows reside in `lib/auth-ui/src/lib`
+- UI components are split into pure functional react components with pattern `*.component.tsx` and controllers with business logic with pattern `*.controller.tsx`. Examples are `login.component.tsx` and `login.controller.tsx`

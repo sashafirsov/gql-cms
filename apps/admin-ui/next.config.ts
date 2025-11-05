@@ -8,6 +8,8 @@ const { composePlugins, withNx } = require('@nx/next');
 const nextConfig: NextConfig = {
     output: 'standalone',
     typedRoutes: false,
+    // Transpile local libraries to ensure CSS modules work correctly
+    transpilePackages: ['@gql-cms/auth-ui'],
     // Use this to set Nx-specific options
     // See: https://nx.dev/recipes/next/next-config-setup
     nx: {},

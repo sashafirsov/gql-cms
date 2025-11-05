@@ -1,5 +1,10 @@
 /* eslint-disable */
 import { readFileSync } from 'fs';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Reading the SWC compilation config for the spec files
 const swcJestConfig = JSON.parse(

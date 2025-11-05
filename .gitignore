@@ -59,3 +59,5 @@ test-output
 out
 
 storybook-static
+vite.config.*.timestamp*
+vitest.config.*.timestamp*

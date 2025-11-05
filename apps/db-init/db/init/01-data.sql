@@ -1,5 +1,5 @@
-/*Create some dummy users*/
-INSERT INTO gql_cms.user (username) VALUES
+/*Create some dummy forum users*/
+INSERT INTO gql_cms.forum_users (username) VALUES
 ('Benjie'),
 ('Singingwolfboy'),
 ('Lexius');

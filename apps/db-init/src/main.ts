@@ -9,11 +9,11 @@ async function bootstrap() {
   app.use(
     postgraphile(
       process.env.DATABASE_URL || 'postgres://localhost:5432/postgres',
-      'app',
+      'gql_cms',
       {
         graphiql: true,
-        graphqlRoute: '/graphql',
-        graphiqlRoute: '/graphiql',
+        graphqlRoute: '/gql_cms/graphql',
+        graphiqlRoute: '/gql_cms/graphiql',
         enhanceGraphiql: true,
       }
     )

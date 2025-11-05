@@ -20,6 +20,9 @@
         },
         {
             "path": "./apps/db-init"
+        },
+        {
+            "path": "./lib/auth-ui"
         }
     ],
     "ts-node": {

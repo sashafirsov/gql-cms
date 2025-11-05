@@ -3,11 +3,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthMiddleware } from './auth.middleware';
 import { NorthwindAuthModule } from './northwind-auth/auth.module';
+import { GqlCmsAuthModule } from './gql-cms-auth/auth.module';
 
 import { postgraphile } from 'postgraphile';
 
 @Module({
-    imports: [NorthwindAuthModule],
+    imports: [NorthwindAuthModule, GqlCmsAuthModule],
     controllers: [AppController],
     providers: [AppService],
 })
@@ -34,8 +35,9 @@ export class AppModule {
                         const auth = req.auth ?? { role: 'anonymous' };
 
                         return {
-                            role: auth.role, // Postgres role to SET LOCAL ROLE to
-                            'app.principal_id': auth.userId ?? null, // For acl.current_principal()
+                            role: auth.role, // Application role name (not PostgreSQL role switch)
+                            'app.principal_id': auth.userId ?? null, // For acl.current_principal() (Northwind)
+                            'gql_cms.user_id': auth.userId ?? null,  // For gql_cms.current_user_id() (gql_cms)
                             'jwt.claims.user_id': auth.userId ?? null,
                             'jwt.claims.email': auth.email ?? null,
                             'jwt.claims.scopes': (auth.scopes ?? []).join(','),

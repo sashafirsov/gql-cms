@@ -47,7 +47,10 @@
             "executor": "@nx/eslint:lint",
             "options": {
                 "lintFilePatterns": [
-                    "apps/admin-ui/**/*.{ts,tsx,js,jsx}"
+                    "apps/admin-ui/**/*.{ts,tsx,js,jsx}",
+                    "!apps/admin-ui/.next/**/*",
+                    "!apps/admin-ui/dist/**/*",
+                    "!apps/admin-ui/out-tsc/**/*"
                 ]
             }
         },
