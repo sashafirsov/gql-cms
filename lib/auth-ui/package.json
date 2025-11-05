@@ -22,7 +22,6 @@
             "types": "./dist/server.d.ts",
             "import": "./dist/server.js",
             "default": "./dist/server.js"
-        },
-        "./dist/auth-ui.css": "./dist/auth-ui.css"
+        }
     }
 }
