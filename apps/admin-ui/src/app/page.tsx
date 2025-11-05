@@ -32,10 +32,12 @@ export default function Index() {
                                 />
                             </svg>
                             <span>You&apos;re up and running</span><br/>
-                            <p>For development details look at <a href="https://github.com/sashafirsov/gql-cms#readme">
-                                https://github.com/sashafirsov/gql-cms</a></p>
                         </h2>
                         <a href="#commands"> What&apos;s next? </a>
+                        <h2>&nbsp;</h2>
+                        <h2>For development details look at </h2>
+                        <a href="https://github.com/sashafirsov/gql-cms#readme">
+                                https://github.com/sashafirsov/gql-cms</a>
                     </div>
                     <div className="logo-container">
                         <svg

@@ -1,4 +1,18 @@
-.NavBar{
-    display:flex;
-    gap: 1rem;
+.NavBar {
+    display: flex;
+    box-shadow: inset 0 -1px 0 0 currentColor;
+
+    & > * {
+        padding: 0.5rem 1rem;
+
+        font-size: 1.875rem;
+        font-weight: 300;
+        line-height: 2.25rem;
+        text-decoration: none;
+
+        &:hover {
+            border-radius: 0.385rem;
+            box-shadow: inset 0 0 0 1px #d1d5db; /* gray-300 */
+        }
+    }
 }

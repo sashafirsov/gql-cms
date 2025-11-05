@@ -39,7 +39,7 @@
     justify-content: space-between;
     gap: 0.5rem;
     width: 100%;
-    padding: 8px 10px;
+    padding: 0.75rem;
     border: 1px solid #d1d5db; /* gray-300 */
     border-radius: 8px;
     background: #ffffff;
