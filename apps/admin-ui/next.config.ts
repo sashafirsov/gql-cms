@@ -18,6 +18,18 @@ const nextConfig: NextConfig = {
             {
                 source: '/api/:path*',
                 destination: 'http://localhost:3000/api/:path*'
+            },
+            {
+                source: '/northwind/auth/:path*',
+                destination: 'http://localhost:5433/northwind/auth/:path*'
+            },
+            {
+                source: '/graphql',
+                destination: 'http://localhost:5433/graphql'
+            },
+            {
+                source: '/graphiql',
+                destination: 'http://localhost:5433/graphiql'
             }
         ];
     }

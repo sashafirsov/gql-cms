@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation';
 import { LoginController } from '@auth-ui';
 import type { LoginSuccessData } from '@auth-ui';
-import styles from '@/app/[lang]/auth/auth-page.module.css';
 
 /**
  * Login Page
