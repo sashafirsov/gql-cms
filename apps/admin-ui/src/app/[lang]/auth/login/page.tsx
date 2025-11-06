@@ -1,8 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { LoginController } from '@gql-cms/auth-ui';
-import type { LoginSuccessData } from '@gql-cms/auth-ui';
+import { LoginController } from '@auth-ui';
+import type { LoginSuccessData } from '@auth-ui';
+import styles from '@/app/[lang]/auth/auth-page.module.css';
 
 /**
  * Login Page
@@ -33,6 +34,7 @@ export default function LoginPage() {
   return (
     <LoginController
       apiBaseUrl="/northwind/auth"
+
       onLoginSuccess={handleLoginSuccess}
       onLoginError={handleLoginError}
     />

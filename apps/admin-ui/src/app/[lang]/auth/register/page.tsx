@@ -10,7 +10,7 @@ import styles from '../auth-page.module.css';
  * User registration with email and password
  * Redirects to login on success
  *
- * TODO: Create RegisterController in @gql-cms/auth-ui library
+ * TODO: Create RegisterController in @auth-ui library
  */
 export default function RegisterPage() {
   const router = useRouter();

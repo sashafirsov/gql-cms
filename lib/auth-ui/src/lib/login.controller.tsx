@@ -10,6 +10,7 @@ export interface LoginControllerProps {
   onLoginSuccess?: (principal: LoginSuccessData) => void;
   onLoginError?: (error: string) => void;
   apiBaseUrl?: string;
+  className?: string;
 }
 
 export interface LoginSuccessData {
@@ -35,6 +36,7 @@ export function LoginController({
   onLoginSuccess,
   onLoginError,
   apiBaseUrl = '/northwind/auth',
+    className = '',
 }: LoginControllerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -111,6 +113,7 @@ export function LoginController({
       onSubmit={handleSubmit}
       isLoading={isLoading}
       error={error}
+      className={className}
       onClearError={handleClearError}
     />
   );
