@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 
-import LanguageSelector from '@/components/LanguageSelector';
+import LanguageSelector from './LanguageSelector';
 import styles from './Heading.module.css';
 import { ProfileLinkController } from '@auth-ui';
 

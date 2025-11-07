@@ -13,10 +13,10 @@ test.describe('Complete Authentication Flow', () => {
     await expect(page.getByRole('heading', { name: /create account/i })).toBeVisible();
 
     // Step 2: Fill registration form
-    const displayName = page.getByLabelText(/display name/i);
-    const email = page.getByLabelText(/email address/i);
-    const password = page.getByLabelText(/^password$/i);
-    const confirmPassword = page.getByLabelText(/confirm password/i);
+    const displayName = page.getByLabel(/display name/i);
+    const email = page.getByLabel(/email address/i);
+    const password = page.getByLabel(/^password$/i);
+    const confirmPassword = page.getByLabel(/confirm password/i);
     const submitButton = page.getByRole('button', { name: /sign up/i });
 
     await displayName.fill('Test User');
@@ -29,8 +29,8 @@ test.describe('Complete Authentication Flow', () => {
     await page.waitForURL(/\/login/, { timeout: 10000 });
 
     // Step 4: Login with new credentials
-    const loginEmail = page.getByLabelText(/email address/i);
-    const loginPassword = page.getByLabelText(/password/i);
+    const loginEmail = page.getByLabel(/email address/i);
+    const loginPassword = page.getByLabel(/password/i);
     const loginButton = page.getByRole('button', { name: /next/i });
 
     await loginEmail.fill('testuser@example.com');
@@ -46,8 +46,8 @@ test.describe('Complete Authentication Flow', () => {
     // Step 1: Login
     await page.goto('/en/auth/login');
 
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/password/i);
     const submitButton = page.getByRole('button', { name: /next/i });
 
     await emailInput.fill('user@example.com');
@@ -80,7 +80,7 @@ test.describe('Complete Authentication Flow', () => {
     await expect(page.getByRole('heading', { name: /forgot password/i })).toBeVisible();
 
     // Step 4: Submit email
-    const emailInput = page.getByLabelText(/email address/i);
+    const emailInput = page.getByLabel(/email address/i);
     const submitButton = page.getByRole('button', { name: /send reset link/i });
 
     await emailInput.fill('user@example.com');
@@ -141,8 +141,8 @@ test.describe('Authentication Edge Cases', () => {
     // Login
     await page.goto('/en/auth/login');
 
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/password/i);
     const submitButton = page.getByRole('button', { name: /next/i });
 
     await emailInput.fill('user@example.com');
@@ -165,8 +165,8 @@ test.describe('Authentication Edge Cases', () => {
   test('should handle multiple failed login attempts', async ({ page }) => {
     await page.goto('/en/auth/login');
 
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/password/i);
     const submitButton = page.getByRole('button', { name: /next/i });
 
     // Attempt 1

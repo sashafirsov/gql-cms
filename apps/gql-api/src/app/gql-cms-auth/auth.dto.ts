@@ -2,14 +2,14 @@
 // Data Transfer Objects for gql_cms authentication
 
 export class RegisterDto {
-  email: string;
-  password: string;
+  email!: string;
+  password!: string;
   fullName?: string;
 }
 
 export class LoginDto {
-  email: string;
-  password: string;
+  email!: string;
+  password!: string;
 }
 
 export class RefreshDto {
@@ -17,7 +17,7 @@ export class RefreshDto {
 }
 
 export class AuthResponse {
-  success: boolean;
+  success!: boolean;
   message?: string;
   user?: {
     id: string;
@@ -29,10 +29,10 @@ export class AuthResponse {
 }
 
 export class TokenPayload {
-  sub: string; // User UUID
-  email: string;
-  fullName: string;
-  role: string; // Will be set based on user_roles table
+  sub!: string; // User UUID
+  email!: string;
+  fullName!: string;
+  role!: string; // Will be set based on the user_roles table
   iat?: number;
   exp?: number;
   iss?: string;
@@ -40,9 +40,9 @@ export class TokenPayload {
 }
 
 export class RefreshTokenPayload {
-  sub: string; // User UUID
-  jti: string; // Token ID
-  family: string; // Token family for rotation
+  sub!: string; // User UUID
+  jti!: string; // Token ID
+  family!: string; // Token family for rotation
   iat?: number;
   exp?: number;
   iss?: string;

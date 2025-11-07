@@ -1,6 +1,7 @@
 {
   "name": "@gql-cms/gql-api",
   "version": "0.0.1",
+  "type": "module",
   "private": true,
   "nx": {
     "targets": {

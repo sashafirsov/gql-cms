@@ -1,16 +1,19 @@
 // auth.middleware.ts
 import { Injectable, NestMiddleware } from '@nestjs/common';
+import { IncomingMessage, ServerResponse } from 'http';
+
 import * as cookie from 'cookie';
 import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  use(req: any, res: any, next: Function) {
+  use(req: IncomingMessage, res:ServerResponse, next: ()=>void) {
     const cookies = cookie.parse(req.headers.cookie || '');
     const token = cookies['access_token'];
     if (token) {
       try {
         const payload = jwt.verify(token, process.env.JWT_PUBLIC_KEY!, { algorithms: ['RS256'] }) as any;
+        // @ts-expect-error added by auth layer
         req.auth = {
           role: payload.role ?? 'app_user',
           userId: payload.sub,

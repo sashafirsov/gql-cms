@@ -2,9 +2,9 @@
 // Authentication controller for Northwind ACL with /northwind prefix
 
 import { Controller, Post, Get, Body, Req, Res, HttpException, HttpStatus } from '@nestjs/common';
-import { Request, Response } from 'express';
-import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto, AuthResponse } from './auth.dto';
+import type { Request, Response } from 'express';
+import { AuthService } from './auth.service.ts';
+import { RegisterDto, LoginDto, AuthResponse } from './auth.dto.ts';
 
 @Controller('northwind/auth')
 export class AuthController {

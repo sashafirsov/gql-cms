@@ -6,7 +6,7 @@ import { Pool } from 'pg';
 import * as argon2 from 'argon2';
 import * as jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import { TokenPayload, RefreshTokenPayload } from './auth.dto';
+import { TokenPayload, RefreshTokenPayload } from './auth.dto.ts';
 
 @Injectable()
 export class AuthService {

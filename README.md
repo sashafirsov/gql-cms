@@ -16,6 +16,7 @@ A reference project with best practices of
 * `gql-api` - NestJS backend with PostGraphile GraphQL API
 * `db-init` - Database initialization service with migration scripts
 * `gql-cms-db` - PostgreSQL 15 in Docker with RLS policies
+* [auth-ui](lib/auth-ui/README.md) - shared authentication flow UI library
 
 # Start development
 

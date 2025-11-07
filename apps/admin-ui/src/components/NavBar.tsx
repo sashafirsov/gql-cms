@@ -1,27 +1,33 @@
 'use client';
 
 import Link from 'next/link';
-import { House, Users2 , LucideBadgeInfo} from 'lucide-react';
+import { House, Users2, LucideBadgeInfo } from 'lucide-react';
 
 import { useLanguage } from '@/components/useLanguage';
 
 import styles from './NavBar.module.css';
+import { i18n } from '@/i18n';
+
+function translate(language: keyof typeof i18n, name: string ) {
+    // @ts-expect-error no need to check
+    return i18n[language][name];
+}
 
 export const NavBar = () => {
     const pages = [
-        ['home', '', ()=><House color="#667eea" size={32} />],
-        ['users', 'users', ()=><Users2 color="#667eea" size={32} />],
-        ['about', 'about', ()=><LucideBadgeInfo color="#667eea" size={32} />],
+        ['home', '', House],
+        ['users', 'users', Users2],
+        ['about', 'about', LucideBadgeInfo],
     ];
     const { language } = useLanguage();
-    // page name is in the current language via i18n mapping
+    // the page name is in the current language via i18n mapping
     // list the pages with links to the correct language path
     return (
         <nav className={styles.NavBar}>
             {pages.map(([name, path, Icon]) => (
-                <Link key={path} href={`/${language}/${path}`}>
-                    <Icon/>
-                    {name}
+                <Link key={path as string} href={`/${language}/${path}`}>
+                    <Icon color="#667eea" size={32} />
+                    {translate(language, name as string)}
                 </Link>
             ))}
         </nav>

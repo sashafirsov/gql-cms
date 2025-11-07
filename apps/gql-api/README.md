@@ -66,13 +66,13 @@ DATABASE_URL=postgresql://postgres:password@localhost:5432/gql_cms
 
 ### 4. Environment Variables Reference
 
-| Variable | Description | Auto-Generated |
-|----------|-------------|----------------|
-| `DATABASE_URL` | PostgreSQL connection string | ❌ Manual |
-| `NODE_ENV` | Environment (development/production) | ❌ Manual |
-| `PORT` | API server port (default: 5433) | ❌ Manual |
-| `JWT_PRIVATE_KEY` | RSA private key for signing JWTs | ✅ Auto (build) |
-| `JWT_PUBLIC_KEY` | RSA public key for verifying JWTs | ✅ Auto (build) |
+| Variable          | Description                          | Auto-Generated   |
+|-------------------|--------------------------------------|------------------|
+| `DATABASE_URL`    | PostgreSQL connection string         | ❌ Manual         |
+| `NODE_ENV`        | Environment (development/production) | ❌ Manual         |
+| `PORT`            | API server port (default: 5433)      | ❌ Manual         |
+| `JWT_PRIVATE_KEY` | RSA private key for signing JWTs     | ✅ Auto (build)   |
+| `JWT_PUBLIC_KEY`  | RSA public key for verifying JWTs    | ✅ Auto (build)   |
 
 ## Development
 

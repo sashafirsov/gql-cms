@@ -27,7 +27,7 @@
     ],
     "ts-node": {
         "compilerOptions": {
-            "module": "commonjs",
+            "module": "ESNext",
             "moduleResolution": "node10",
             "customConditions": null
         }
