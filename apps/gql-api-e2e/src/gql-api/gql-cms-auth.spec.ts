@@ -554,7 +554,7 @@ describe('GQL CMS Authentication API', () => {
       });
 
       let cookies = extractCookies(regRes.headers['set-cookie'] || []);
-      let accessToken = cookies.get('access_token');
+      const accessToken = cookies.get('access_token');
       const refreshToken = cookies.get('refresh_token');
 
       // Verify initial access works

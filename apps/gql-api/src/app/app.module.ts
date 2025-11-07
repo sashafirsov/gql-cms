@@ -1,9 +1,9 @@
-import { Module, NestMiddleware, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthMiddleware } from './auth.middleware';
-import { NorthwindAuthModule } from './northwind-auth/auth.module';
-import { GqlCmsAuthModule } from './gql-cms-auth/auth.module';
+import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { AppController } from './app.controller.ts';
+import { AppService } from './app.service.ts';
+import { AuthMiddleware } from './auth.middleware.ts';
+import { NorthwindAuthModule } from './northwind-auth/auth.module.ts';
+import { GqlCmsAuthModule } from './gql-cms-auth/auth.module.ts';
 
 import { postgraphile } from 'postgraphile';
 
@@ -32,6 +32,7 @@ export class AppModule {
                     pgSettings: async (req) => {
                         // result of your auth layer:
                         // e.g. req.auth = { role: 'app_user', userId: '68d4...', scopes: ['doc:read'] }
+                        // @ts-expect-error added by auth layer
                         const auth = req.auth ?? { role: 'anonymous' };
 
                         return {

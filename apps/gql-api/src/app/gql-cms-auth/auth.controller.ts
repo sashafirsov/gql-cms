@@ -2,9 +2,9 @@
 // Authentication controller for gql_cms with /gql-cms/auth prefix
 
 import { Controller, Post, Get, Body, Req, Res, HttpException, HttpStatus } from '@nestjs/common';
-import { Request, Response } from 'express';
-import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto, AuthResponse } from './auth.dto';
+import type { Request, Response } from 'express';
+import type { AuthService } from './auth.service.ts';
+import type { RegisterDto, LoginDto, AuthResponse } from './auth.dto.ts';
 
 @Controller('gql-cms/auth')
 export class AuthController {

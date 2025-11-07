@@ -17,6 +17,7 @@
         "skipLibCheck": true,
         "strict": true,
         "target": "es2022",
+        "allowImportingTsExtensions": true,
         "customConditions": ["@gql-cms/source"],
         "paths": {
             "@auth-ui": ["lib/auth-ui/src"]

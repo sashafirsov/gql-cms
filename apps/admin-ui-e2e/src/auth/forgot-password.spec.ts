@@ -19,7 +19,7 @@ test.describe('Forgot Password Page', () => {
     await expect(page.getByText(/enter your email/i)).toBeVisible();
 
     // Check form elements
-    await expect(page.getByLabelText(/email address/i)).toBeVisible();
+    await expect(page.getByLabel(/email address/i)).toBeVisible();
     await expect(page.getByRole('button', { name: /send reset link/i })).toBeVisible();
 
     // Check login link
@@ -32,7 +32,7 @@ test.describe('Forgot Password Page', () => {
   });
 
   test('should enable submit button when email is filled', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
+    const emailInput = page.getByLabel(/email address/i);
     const submitButton = page.getByRole('button', { name: /send reset link/i });
 
     // Initially disabled
@@ -46,7 +46,7 @@ test.describe('Forgot Password Page', () => {
   });
 
   test('should show validation error for invalid email', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
+    const emailInput = page.getByLabel(/email address/i);
     const submitButton = page.getByRole('button', { name: /send reset link/i });
 
     // Fill with invalid email
@@ -58,7 +58,7 @@ test.describe('Forgot Password Page', () => {
   });
 
   test('should show loading state during submission', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
+    const emailInput = page.getByLabel(/email address/i);
     const submitButton = page.getByRole('button', { name: /send reset link/i });
 
     // Fill form
@@ -70,7 +70,7 @@ test.describe('Forgot Password Page', () => {
   });
 
   test('should show success message after submission', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
+    const emailInput = page.getByLabel(/email address/i);
     const submitButton = page.getByRole('button', { name: /send reset link/i });
 
     // Fill and submit
@@ -83,7 +83,7 @@ test.describe('Forgot Password Page', () => {
   });
 
   test('should disable form after successful submission', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
+    const emailInput = page.getByLabel(/email address/i);
     const submitButton = page.getByRole('button', { name: /send reset link/i });
 
     // Fill and submit
@@ -99,7 +99,7 @@ test.describe('Forgot Password Page', () => {
   });
 
   test('should redirect to login after success', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
+    const emailInput = page.getByLabel(/email address/i);
     const submitButton = page.getByRole('button', { name: /send reset link/i });
 
     // Fill and submit
@@ -119,7 +119,7 @@ test.describe('Forgot Password Page', () => {
   });
 
   test('should have accessible form elements', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
+    const emailInput = page.getByLabel(/email address/i);
 
     // Check input type
     await expect(emailInput).toHaveAttribute('type', 'email');

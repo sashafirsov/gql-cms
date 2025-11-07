@@ -22,8 +22,8 @@ test.describe('Dashboard Page', () => {
       await page.goto('/en/auth/login');
 
       // Login first
-      const emailInput = page.getByLabelText(/email address/i);
-      const passwordInput = page.getByLabelText(/password/i);
+      const emailInput = page.getByLabel(/email address/i);
+      const passwordInput = page.getByLabel(/password/i);
       const submitButton = page.getByRole('button', { name: /next/i });
 
       await emailInput.fill('user@example.com');

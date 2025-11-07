@@ -20,10 +20,10 @@ test.describe('Register Page', () => {
     await expect(page.getByRole('heading', { name: /create account/i })).toBeVisible();
 
     // Check form elements
-    await expect(page.getByLabelText(/display name/i)).toBeVisible();
-    await expect(page.getByLabelText(/email address/i)).toBeVisible();
-    await expect(page.getByLabelText(/^password$/i)).toBeVisible();
-    await expect(page.getByLabelText(/confirm password/i)).toBeVisible();
+    await expect(page.getByLabel( /display name/i)).toBeVisible();
+    await expect(page.getByLabel(/email address/i)).toBeVisible();
+    await expect(page.getByLabel(/^password$/i)).toBeVisible();
+    await expect(page.getByLabel(/confirm password/i)).toBeVisible();
     await expect(page.getByRole('button', { name: /sign up/i })).toBeVisible();
 
     // Check login link
@@ -36,9 +36,9 @@ test.describe('Register Page', () => {
   });
 
   test('should enable submit button when all required fields are filled', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/^password$/i);
-    const confirmPasswordInput = page.getByLabelText(/confirm password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/^password$/i);
+    const confirmPasswordInput = page.getByLabel(/confirm password/i);
     const submitButton = page.getByRole('button', { name: /sign up/i });
 
     // Fill required fields
@@ -51,9 +51,9 @@ test.describe('Register Page', () => {
   });
 
   test('should show error when passwords do not match', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/^password$/i);
-    const confirmPasswordInput = page.getByLabelText(/confirm password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/^password$/i);
+    const confirmPasswordInput = page.getByLabel(/confirm password/i);
     const submitButton = page.getByRole('button', { name: /sign up/i });
 
     // Fill with mismatched passwords
@@ -67,9 +67,9 @@ test.describe('Register Page', () => {
   });
 
   test('should show error for short password', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/^password$/i);
-    const confirmPasswordInput = page.getByLabelText(/confirm password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/^password$/i);
+    const confirmPasswordInput = page.getByLabel(/confirm password/i);
     const submitButton = page.getByRole('button', { name: /sign up/i });
 
     // Fill with short password
@@ -83,9 +83,9 @@ test.describe('Register Page', () => {
   });
 
   test('should show loading state during submission', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/^password$/i);
-    const confirmPasswordInput = page.getByLabelText(/confirm password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/^password$/i);
+    const confirmPasswordInput = page.getByLabel(/confirm password/i);
     const submitButton = page.getByRole('button', { name: /sign up/i });
 
     // Fill form
@@ -107,9 +107,9 @@ test.describe('Register Page', () => {
   });
 
   test('should have accessible form elements', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/^password$/i);
-    const confirmPasswordInput = page.getByLabelText(/confirm password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/^password$/i);
+    const confirmPasswordInput = page.getByLabel(/confirm password/i);
 
     // Check input types
     await expect(emailInput).toHaveAttribute('type', 'email');
@@ -128,10 +128,10 @@ test.describe('Register Page', () => {
   });
 
   test('should allow optional display name', async ({ page }) => {
-    const displayNameInput = page.getByLabelText(/display name/i);
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/^password$/i);
-    const confirmPasswordInput = page.getByLabelText(/confirm password/i);
+    const displayNameInput = page.getByLabel(/display name/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/^password$/i);
+    const confirmPasswordInput = page.getByLabel(/confirm password/i);
     const submitButton = page.getByRole('button', { name: /sign up/i });
 
     // Display name should not be required
@@ -153,9 +153,9 @@ test.describe('Register Flow Integration', () => {
   test('should redirect to login on successful registration', async ({ page }) => {
     await page.goto('/en/auth/register');
 
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/^password$/i);
-    const confirmPasswordInput = page.getByLabelText(/confirm password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/^password$/i);
+    const confirmPasswordInput = page.getByLabel(/confirm password/i);
     const submitButton = page.getByRole('button', { name: /sign up/i });
 
     // Fill and submit
@@ -171,9 +171,9 @@ test.describe('Register Flow Integration', () => {
   test('should show error for existing email', async ({ page }) => {
     await page.goto('/en/auth/register');
 
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/^password$/i);
-    const confirmPasswordInput = page.getByLabelText(/confirm password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/^password$/i);
+    const confirmPasswordInput = page.getByLabel(/confirm password/i);
     const submitButton = page.getByRole('button', { name: /sign up/i });
 
     // Use email that triggers error

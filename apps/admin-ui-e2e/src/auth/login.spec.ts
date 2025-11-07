@@ -21,8 +21,8 @@ test.describe('Login Page', () => {
     await expect(page.getByRole('heading', { name: /sign in/i })).toBeVisible();
 
     // Check form elements
-    await expect(page.getByLabelText(/email address/i)).toBeVisible();
-    await expect(page.getByLabelText(/password/i)).toBeVisible();
+    await expect(page.getByLabel(/email address/i)).toBeVisible();
+    await expect(page.getByLabel(/password/i)).toBeVisible();
     await expect(page.getByRole('button', { name: /next/i })).toBeVisible();
 
     // Check forgot password link
@@ -35,8 +35,8 @@ test.describe('Login Page', () => {
   });
 
   test('should enable submit button when form is filled', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/password/i);
     const submitButton = page.getByRole('button', { name: /next/i });
 
     // Initially disabled
@@ -51,8 +51,8 @@ test.describe('Login Page', () => {
   });
 
   test('should show validation error for invalid email', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/password/i);
     const submitButton = page.getByRole('button', { name: /next/i });
 
     // Fill with invalid email
@@ -65,7 +65,7 @@ test.describe('Login Page', () => {
   });
 
   test('should toggle password visibility', async ({ page }) => {
-    const passwordInput = page.getByLabelText(/password/i);
+    const passwordInput = page.getByLabel(/password/i);
     const toggleButton = page.getByRole('button', { name: /show password/i });
 
     // Initially hidden (type="password")
@@ -87,8 +87,8 @@ test.describe('Login Page', () => {
   });
 
   test('should show loading state during submission', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/password/i);
     const submitButton = page.getByRole('button', { name: /next/i });
 
     // Fill form
@@ -103,8 +103,8 @@ test.describe('Login Page', () => {
   });
 
   test('should clear error when user types', async ({ page }) => {
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/password/i);
     const submitButton = page.getByRole('button', { name: /next/i });
 
     // Trigger an error (invalid email)
@@ -132,8 +132,8 @@ test.describe('Login Page', () => {
 
   test('should have accessible form elements', async ({ page }) => {
     // Check for proper labels
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/password/i);
 
     await expect(emailInput).toHaveAttribute('type', 'email');
     await expect(emailInput).toHaveAttribute('autocomplete', 'email');
@@ -147,7 +147,7 @@ test.describe('Login Page', () => {
   test('should handle keyboard navigation', async ({ page }) => {
     // Tab to email field
     await page.keyboard.press('Tab');
-    const emailInput = page.getByLabelText(/email address/i);
+    const emailInput = page.getByLabel(/email address/i);
     await expect(emailInput).toBeFocused();
 
     // Type email
@@ -155,7 +155,7 @@ test.describe('Login Page', () => {
 
     // Tab to password field
     await page.keyboard.press('Tab');
-    const passwordInput = page.getByLabelText(/password/i);
+    const passwordInput = page.getByLabel(/password/i);
     await expect(passwordInput).toBeFocused();
 
     // Type password
@@ -179,8 +179,8 @@ test.describe('Login Flow Integration', () => {
   test('should redirect to dashboard on successful login', async ({ page }) => {
     await page.goto('/en/auth/login');
 
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/password/i);
     const submitButton = page.getByRole('button', { name: /next/i });
 
     // Fill and submit
@@ -198,8 +198,8 @@ test.describe('Login Flow Integration', () => {
   test('should show error message for invalid credentials', async ({ page }) => {
     await page.goto('/en/auth/login');
 
-    const emailInput = page.getByLabelText(/email address/i);
-    const passwordInput = page.getByLabelText(/password/i);
+    const emailInput = page.getByLabel(/email address/i);
+    const passwordInput = page.getByLabel(/password/i);
     const submitButton = page.getByRole('button', { name: /next/i });
 
     // Use credentials that trigger error

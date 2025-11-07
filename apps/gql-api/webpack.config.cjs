@@ -4,10 +4,23 @@ const { join } = require('path');
 module.exports = {
   output: {
     path: join(__dirname, 'dist'),
+    library: {
+      type: 'module',
+    },
+    chunkFormat: 'module',
+    module: true,
+    environment: {
+      module: true,
+      dynamicImport: true,
+    },
     ...(process.env.NODE_ENV !== 'production' && {
       devtoolModuleFilenameTemplate: '[absolute-resource-path]',
     }),
   },
+  experiments: {
+    outputModule: true,
+  },
+  externalsType: 'module',
   plugins: [
     new NxAppWebpackPlugin({
       target: 'node',

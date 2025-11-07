@@ -2,15 +2,15 @@
 // Data Transfer Objects for Northwind authentication
 
 export class RegisterDto {
-  email: string;
-  password: string;
+  email!: string;
+  password!: string;
   kind?: 'customer' | 'employee';
   displayName?: string;
 }
 
 export class LoginDto {
-  email: string;
-  password: string;
+  email!: string;
+  password!: string;
 }
 
 export class RefreshDto {
@@ -18,7 +18,7 @@ export class RefreshDto {
 }
 
 export class AuthResponse {
-  success: boolean;
+  success!: boolean;
   message?: string;
   principal?: {
     id: string;
@@ -30,10 +30,10 @@ export class AuthResponse {
 }
 
 export class TokenPayload {
-  sub: string; // Principal UUID
-  email: string;
-  kind: string;
-  role: string; // PostgreSQL role (app_user, app_admin, app_readonly)
+  sub!: string; // Principal UUID
+  email!: string;
+  kind!: string;
+  role!: string; // PostgreSQL role (app_user, app_admin, app_readonly)
   iat?: number;
   exp?: number;
   iss?: string;
@@ -41,9 +41,9 @@ export class TokenPayload {
 }
 
 export class RefreshTokenPayload {
-  sub: string; // Principal UUID
-  jti: string; // Token ID
-  family: string; // Token family for rotation
+  sub!: string; // Principal UUID
+  jti!: string; // Token ID
+  family!: string; // Token family for rotation
   iat?: number;
   exp?: number;
   iss?: string;

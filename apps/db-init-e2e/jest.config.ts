@@ -3,6 +3,7 @@ import { readFileSync } from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
+// @ts-ignore
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
