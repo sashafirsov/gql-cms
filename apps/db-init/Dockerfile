@@ -21,4 +21,4 @@ COPY package.json .
 
 RUN npm --omit=dev -f install
 
-CMD [ "node", "src/main.js" ]
+CMD [ "node", "main.js" ]
