@@ -369,3 +369,4 @@ When debugging:
 - `NOTES.md` - Developer notes and build instructions
 - UI components in authentication flows reside in `lib/auth-ui/src/lib`
 - UI components are split into pure functional react components with pattern `*.component.tsx` and controllers with business logic with pattern `*.controller.tsx`. Examples are `login.component.tsx` and `login.controller.tsx`
+- do not change the import statements with .ts extension as it is native node convention.
