@@ -6,3 +6,4 @@ export * from './lib/login.component';
 export * from './lib/login-link.component';
 export * from './lib/profile-link.component';
 export * from './lib/profile-link.controller';
+export * from './lib/CheckIpRate';

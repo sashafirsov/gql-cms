@@ -41,3 +41,25 @@ _Calls per minute bounds:_
 Per labeled minute (e.g., 12:34:00–12:34:59): max = 6,000, min = 0.
 
 Any 60-second sliding window: max ≈ 6,100, min ≈ 5,900 (due to second-boundary bursts/holes).
+
+## endpoint responses on rate exceeded
+Use HTTP 429 Too Many Requests with a Retry-After and modern RateLimit headers.
+
+    Status: 429
+    Retry-After: 1
+    RateLimit-Policy: 100;w=1
+    RateLimit-Limit: 100
+    RateLimit-Remaining: 0
+    RateLimit-Reset: <seconds-until-next-second>
+
+Body JSON
+```json
+{
+  "error": "CALL_RATE_PER_IP_EXCEEDED",
+  "message": "Per-IP limit of 100 requests per labeled second exceeded.",
+  "limit": 100,
+  "retry_after_ms": 137
+}
+```
+# implementation
+Details in [RATE-LIMITING.md](./RATE-LIMITING.md)

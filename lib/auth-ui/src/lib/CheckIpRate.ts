@@ -14,8 +14,8 @@
 
 // State storage for IP rate limiting
 interface IpBucket {
-  secondBucketStart: number; // Unix timestamp in seconds
-  count: number;
+    secondBucketStart: number; // Unix timestamp in seconds
+    count: number;
 }
 
 // In-memory storage for IP buckets
@@ -36,37 +36,37 @@ const MAX_REQUESTS_PER_SECOND = 100;
  * @returns true if the rate limit is NOT exceeded (request allowed), false otherwise
  */
 export function CheckIpRate(ip: string, timeMs: number): boolean {
-  // Convert milliseconds to seconds (floor division)
-  const currentSecond = Math.floor(timeMs / 1000);
+    // Convert milliseconds to seconds (floor division)
+    const currentSecond = Math.floor(timeMs / 1000);
 
-  // Get existing bucket for this IP
-  const bucket = ipBuckets.get(ip);
+    // Get existing bucket for this IP
+    const bucket = ipBuckets.get(ip);
 
-  if (!bucket) {
-    // First request from this IP
-    ipBuckets.set(ip, {
-      secondBucketStart: currentSecond,
-      count: 1
-    });
-    return true; // Allow first request
-  }
-
-  if (bucket.secondBucketStart === currentSecond) {
-    // Same second bucket, increment count
-    bucket.count++;
-
-    // Check if limit exceeded
-    if (bucket.count > MAX_REQUESTS_PER_SECOND) {
-      return false; // Rate limit exceeded - reject request
+    if (!bucket) {
+        // First request from this IP
+        ipBuckets.set(ip, {
+            secondBucketStart: currentSecond,
+            count: 1,
+        });
+        return true; // Allow first request
     }
 
-    return true; // Within rate limit - allow request
-  } else {
-    // New second bucket, reset counter
-    bucket.secondBucketStart = currentSecond;
-    bucket.count = 1;
-    return true; // Allow request in new second
-  }
+    if (bucket.secondBucketStart === currentSecond) {
+        // Same second bucket, increment count
+        bucket.count++;
+
+        // Check if limit exceeded
+        if (bucket.count > MAX_REQUESTS_PER_SECOND) {
+            return false; // Rate limit exceeded - reject request
+        }
+
+        return true; // Within rate limit - allow request
+    } else {
+        // New second bucket, reset counter
+        bucket.secondBucketStart = currentSecond;
+        bucket.count = 1;
+        return true; // Allow request in new second
+    }
 }
 
 /**
@@ -76,16 +76,21 @@ export function CheckIpRate(ip: string, timeMs: number): boolean {
  * @param currentTimeMs - Current timestamp in milliseconds
  * @param maxAgeSeconds - Maximum age of buckets to keep (default: 60 seconds)
  */
-export function cleanupOldBuckets(currentTimeMs: number, maxAgeSeconds: number = 60): void {
-  const currentSecond = Math.floor(currentTimeMs / 1000);
-  const cutoffSecond = currentSecond - maxAgeSeconds;
-
-  // Convert to array for compatible iteration
-  Array.from(ipBuckets.entries()).forEach(([ip, bucket]) => {
-    if (bucket.secondBucketStart < cutoffSecond) {
-      ipBuckets.delete(ip);
-    }
-  });
+export function cleanupOldBuckets(
+    currentTimeMs: number,
+    maxAgeSeconds = 60
+): boolean {
+    const currentSecond = Math.floor(currentTimeMs / 1000);
+    const cutoffSecond = currentSecond - maxAgeSeconds;
+    let cleaned = false;
+    // Convert to array for compatible iteration
+    Array.from(ipBuckets.entries()).forEach(([ip, bucket]) => {
+        if (bucket.secondBucketStart < cutoffSecond) {
+            ipBuckets.delete(ip);
+            cleaned = true;
+        }
+    });
+    return cleaned;
 }
 
 /**
@@ -95,14 +100,14 @@ export function cleanupOldBuckets(currentTimeMs: number, maxAgeSeconds: number =
  * @returns The bucket state or undefined if no bucket exists
  */
 export function getIpBucketState(ip: string): IpBucket | undefined {
-  return ipBuckets.get(ip);
+    return ipBuckets.get(ip);
 }
 
 /**
  * Clear all IP buckets (for testing)
  */
 export function clearAllBuckets(): void {
-  ipBuckets.clear();
+    ipBuckets.clear();
 }
 
 /**
@@ -111,5 +116,5 @@ export function clearAllBuckets(): void {
  * @returns The number of IPs currently being tracked
  */
 export function getTrackedIpCount(): number {
-  return ipBuckets.size;
+    return ipBuckets.size;
 }

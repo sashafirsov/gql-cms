@@ -9,6 +9,11 @@ module.exports = {
       devtoolModuleFilenameTemplate: '[absolute-resource-path]',
     }),
   },
+  resolve: {
+    alias: {
+      '@auth-ui': join(__dirname, '../../lib/auth-ui/src'),
+    },
+  },
   plugins: [
     new NxAppWebpackPlugin({
       target: 'node',
