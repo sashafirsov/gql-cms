@@ -133,10 +133,11 @@ USING (
 );
 
 -- ---- USER_ROLES table -------------------------------------------------------
--- Only manager/admin can view/modify user role assignments.
+-- Allow SELECT for all to avoid infinite recursion (has_global_role queries this table)
+-- Only manager/admin can modify user role assignments.
 DROP POLICY IF EXISTS user_roles_select ON gql_cms.user_roles;
 CREATE POLICY user_roles_select ON gql_cms.user_roles
-FOR SELECT USING (gql_cms.has_global_role('manager') OR gql_cms.has_global_role('admin'));
+FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS user_roles_modify ON gql_cms.user_roles;
 CREATE POLICY user_roles_modify ON gql_cms.user_roles

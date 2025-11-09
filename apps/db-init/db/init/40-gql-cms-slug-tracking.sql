@@ -19,10 +19,12 @@ CREATE INDEX IF NOT EXISTS idx_slug_slug ON gql_cms.slug(slug);
 ALTER TABLE gql_cms.slug ENABLE ROW LEVEL SECURITY;
 
 -- Grant necessary permissions
-GRANT SELECT, INSERT ON gql_cms.slug TO anonymous;
-GRANT SELECT, INSERT ON gql_cms.slug TO app_user;
-GRANT ALL ON gql_cms.slug TO admin;
-GRANT ALL ON gql_cms.slug TO manager;
+-- Anonymous users can only INSERT (track accesses) but not SELECT (view analytics)
+GRANT INSERT ON gql_cms.slug TO anonymous;
+-- Authenticated users can INSERT but SELECT is controlled by RLS policies
+GRANT INSERT ON gql_cms.slug TO app_user;
+-- Admin and manager roles get full access through RLS policies + base permissions
+GRANT SELECT, INSERT ON gql_cms.slug TO app_user;  -- app_user needs SELECT for RLS to work
 
 -- RLS Policies
 

@@ -3,27 +3,35 @@
 A reference project with best practices of
 
 * ✓ monorepo
-* Two ACL/authorization systems (simple per-resource + Zanzibar ReBAC)
-* Native PostgreSQL Row-Level Security (RLS)
-* GraphQL API with PostGraphile and NestJS backend
-* Complete authentication with JWT + argon2 + token rotation
-* NextJS Admin UI with Apollo Client
-* Semantic UI Theme
+* ✓ Two ACL/authorization systems (simple per-resource + Zanzibar ReBAC)
+* ✓ Native PostgreSQL Row-Level Security (RLS)
+* ✓ GraphQL API with PostGraphile and NestJS backend
+* ✓ Complete authentication with JWT + argon2 + token rotation
+* ✓ NextJS Admin UI with Apollo Client
+* - Semantic UI Theme TBD
 
-## Sub-projects
-
-* `admin-ui` - NextJS Admin UI with Apollo Client
-* `gql-api` - NestJS backend with PostGraphile GraphQL API
-* `db-init` - Database initialization service with migration scripts
-* `gql-cms-db` - PostgreSQL 15 in Docker with RLS policies
-* [auth-ui](lib/auth-ui/README.md) - shared authentication flow UI library
 
 # Start development
 
     npm install --legacy-peer-deps # @storybook/test-runner still in legacy mode
     npm start # would build and run all applications above in docker
 
+http://localhost:4200/ - web UI
+http://localhost:5433/status - health check for API
+http://localhost:5433/graphiql - GraphQL console for DB inspection and development
+
+* Create a user to create and see [slugs](docs/slug.md)
+* For analytics view, use **manager@example.com**  with _Manager123#_ password
+
+
+# Sub-projects
 Each application also could be run separately.
+
+* `admin-ui` - NextJS Admin UI with Apollo Client
+* `gql-api` - NestJS backend with PostGraphile GraphQL API
+* `db-init` - Database initialization service with migration scripts
+* `gql-cms-db` - PostgreSQL 15 in Docker with RLS policies
+* [auth-ui](lib/auth-ui/README.md) - shared authentication flow UI library
 
 # `admin-ui`
 
