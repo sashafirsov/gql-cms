@@ -217,7 +217,8 @@ export default function UrlShortenerPage() {
   const handleCopy = async () => {
     if (shortUrlData?.shortUrl) {
       try {
-        await navigator.clipboard.writeText(shortUrlData.shortUrl);
+        const fullUrl = `${window.location.origin}/${shortUrlData.shortUrl}`;
+        await navigator.clipboard.writeText(fullUrl);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (err) {
@@ -351,12 +352,12 @@ export default function UrlShortenerPage() {
 
               <div className={styles.shortUrlRow}>
                 <a
-                  href={shortUrlData.shortUrl}
+                  href={`/${shortUrlData.shortUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={styles.shortUrlLink}
                 >
-                  {shortUrlData.shortUrl}
+                  {`${typeof window !== 'undefined' ? window.location.origin : ''}/${shortUrlData.shortUrl}`}
                 </a>
                 <button
                   type="button"
