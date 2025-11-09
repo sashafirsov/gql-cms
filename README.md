@@ -22,7 +22,7 @@ A reference project with best practices of
 
 Create a user to create and see [slugs](docs/slug.md)
  
-For analytics view, use **manager@example.com**  with _Manager123#_ password
+For an analytics view, use **manager@example.com**  with _Manager123#_ password
 
 
 # Sub-projects

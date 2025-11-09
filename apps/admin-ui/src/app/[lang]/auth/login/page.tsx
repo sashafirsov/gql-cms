@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { LoginController } from '@auth-ui';
 import type { LoginSuccessData } from '@auth-ui';
 
@@ -11,7 +10,6 @@ import type { LoginSuccessData } from '@auth-ui';
  * Redirects to dashboard on success
  */
 export default function LoginPage() {
-    const router = useRouter();
 
     const handleLoginSuccess = (principal: LoginSuccessData) => {
         console.log('Login successful:', principal);
