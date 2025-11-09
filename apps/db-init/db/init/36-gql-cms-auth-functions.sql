@@ -9,7 +9,9 @@ BEGIN;
 -- Find user by email (for login)
 CREATE OR REPLACE FUNCTION gql_cms.find_user_by_email(p_email CITEXT)
 RETURNS UUID
-LANGUAGE sql STABLE AS $$
+LANGUAGE sql STABLE
+SECURITY DEFINER
+AS $$
     SELECT id FROM gql_cms.users WHERE email = p_email;
 $$;
 
@@ -173,7 +175,9 @@ RETURNS TABLE(
     auth_provider TEXT,
     email_verified BOOLEAN
 )
-LANGUAGE sql STABLE AS $$
+LANGUAGE sql STABLE
+SECURITY DEFINER
+AS $$
     SELECT
         id,
         email,
@@ -193,7 +197,9 @@ CREATE OR REPLACE FUNCTION gql_cms.create_user_with_password(
     p_password_hash TEXT,
     p_full_name TEXT DEFAULT NULL
 ) RETURNS UUID
-LANGUAGE plpgsql AS $$
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
 DECLARE
     v_user_id UUID;
 BEGIN

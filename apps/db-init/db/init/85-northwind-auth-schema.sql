@@ -91,6 +91,10 @@ COMMENT ON TABLE acl.sessions IS
 ALTER TABLE acl.user_credentials ENABLE ROW LEVEL SECURITY;
 ALTER TABLE acl.user_credentials FORCE ROW LEVEL SECURITY;
 
+CREATE POLICY user_credentials_insert ON acl.user_credentials
+FOR INSERT
+WITH CHECK (true);  -- Allow auth service to insert credentials during registration
+
 CREATE POLICY user_credentials_select ON acl.user_credentials
 FOR SELECT
 USING (principal_id = acl.current_principal() OR current_user = 'app_admin');
@@ -108,9 +112,13 @@ CREATE POLICY oauth_identities_select ON acl.oauth_identities
 FOR SELECT
 USING (principal_id = acl.current_principal() OR current_user = 'app_admin');
 
--- Refresh tokens: Read-only for users, admin full access
+-- Refresh tokens: Read-only for users, admin full access, allow INSERT for auth service
 ALTER TABLE acl.refresh_tokens ENABLE ROW LEVEL SECURITY;
 ALTER TABLE acl.refresh_tokens FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY refresh_tokens_insert ON acl.refresh_tokens
+FOR INSERT
+WITH CHECK (true);  -- Allow auth service to insert tokens
 
 CREATE POLICY refresh_tokens_select ON acl.refresh_tokens
 FOR SELECT

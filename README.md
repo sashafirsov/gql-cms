@@ -16,12 +16,13 @@ A reference project with best practices of
     npm install --legacy-peer-deps # @storybook/test-runner still in legacy mode
     npm start # would build and run all applications above in docker
 
-http://localhost:4200/ - web UI
-http://localhost:5433/status - health check for API
-http://localhost:5433/graphiql - GraphQL console for DB inspection and development
+* http://localhost:4200/ - web UI
+* http://localhost:5433/status - health check for API
+* http://localhost:5433/graphiql - GraphQL console for DB inspection and development
 
-* Create a user to create and see [slugs](docs/slug.md)
-* For analytics view, use **manager@example.com**  with _Manager123#_ password
+Create a user to create and see [slugs](docs/slug.md)
+ 
+For analytics view, use **manager@example.com**  with _Manager123#_ password
 
 
 # Sub-projects
@@ -35,24 +36,29 @@ Each application also could be run separately.
 
 # `admin-ui`
 
-    nx serve admin-ui
+    nx serve admin-ui # or
 
-Navigate to http://localhost:4200. The app will automatically reload if you change any of the source files.
+* Navigate to http://localhost:4200. The app will automatically reload if you change any of the source files.
+* It also would run the `gql-api` application in the background with proxy to `http://localhost:4200/api`.
+* Use StoryBook for components development
 
-It also would run the `gql-api` application in the background with proxy to `http://localhost:4200/api`.
+```bash
+    npm run storybook 
+```
 
 # `db-init`
 
     nx serve db-init
 
-Populates the Synthetic Persona data into Postgres DB and gives the status on.
-Navigate to `http://localhost:3000/status`. The
+TBD: Populates the Synthetic Persona data into Postgres DB and gives the status on 
+http://localhost:3000/status
 
 # `gql-api`
 
     nx serve gql-api
 
-will run the gql-api application. Navigate to `http://localhost:5433/api`. The app will automatically reload if you change any of the source files.
+will run the gql-api application. Navigate to `http://localhost:5433/graphiql` for GraphQL console. 
+The app will automatically reload if you change any of the source files.
 
 # Development
 
@@ -72,8 +78,7 @@ will run the gql-api application. Navigate to `http://localhost:5433/api`. The a
 
 ## UI components development
 
-* [auth-ui](lib/auth-ui/README.md) - authentication components
-* cms-ui TBD.
+* [auth-ui](lib/auth-ui/README.md) - authentication components, uses StoryBook for development
 
 ## Admin UI
 
@@ -81,7 +86,6 @@ will run the gql-api application. Navigate to `http://localhost:5433/api`. The a
 
 * Admin UI is available at http://localhost:4200/
 * API proxy is available at http://localhost:4200/api
-* `db-init` API direct is available at http://localhost:3000/api
 
 ## Auth UI Library - Dual Nature Architecture
 

@@ -99,8 +99,12 @@ CREATE POLICY oauth_identities_admin_all ON gql_cms.oauth_identities
 FOR ALL
 USING (gql_cms.has_global_role('admin'));
 
--- Refresh tokens: Read-only for users, admin full access
+-- Refresh tokens: Read-only for users, admin full access, allow INSERT for auth service
 ALTER TABLE gql_cms.refresh_tokens ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY refresh_tokens_insert ON gql_cms.refresh_tokens
+FOR INSERT
+WITH CHECK (true);  -- Allow auth service to insert tokens
 
 CREATE POLICY refresh_tokens_select ON gql_cms.refresh_tokens
 FOR SELECT
