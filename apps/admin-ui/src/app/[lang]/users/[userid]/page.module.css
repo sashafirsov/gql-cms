@@ -1,0 +1,411 @@
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.backLink {
+  display: inline-block;
+  color: #667eea;
+  text-decoration: none;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  transition: color 0.2s;
+}
+
+.backLink:hover {
+  color: #5568d3;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #667eea;
+  font-family: monospace;
+  margin: 0;
+}
+
+.loading,
+.error,
+.notFound {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #666;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error {
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  padding: 2rem;
+  color: #c33;
+}
+
+.error h2 {
+  margin: 0 0 1rem 0;
+  color: #c33;
+}
+
+.notFound {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 3rem;
+}
+
+.notFoundIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.notFound h2 {
+  font-size: 1.5rem;
+  color: #333;
+  margin: 0 0 0.5rem 0;
+}
+
+.notFound p {
+  color: #666;
+  margin: 0 0 1.5rem 0;
+}
+
+.backButton {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background: #667eea;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.backButton:hover {
+  background: #5568d3;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.cardFull {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  grid-column: 1 / -1;
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.infoGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.infoLabel {
+  font-size: 0.75rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.infoValue {
+  font-size: 1rem;
+  color: #333;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: #e9ecef;
+  color: #495057;
+  width: fit-content;
+}
+
+.status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.verified {
+  background: #d4edda;
+  color: #155724;
+}
+
+.unverified {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.roleList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.roleBadge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.emptyMessage {
+  color: #6c757d;
+  font-style: italic;
+  margin: 0;
+}
+
+.oauthList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.oauthItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #667eea;
+}
+
+.oauthProvider {
+  font-weight: 600;
+  color: #333;
+  text-transform: capitalize;
+}
+
+.oauthEmail {
+  font-family: monospace;
+  color: #667eea;
+  font-size: 0.875rem;
+}
+
+.oauthDate {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.sessionList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sessionItem {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #667eea;
+}
+
+.sessionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.sessionStatus {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.sessionActive {
+  color: #28a745;
+}
+
+.sessionExpired {
+  color: #6c757d;
+}
+
+.sessionTime {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.sessionAgent {
+  font-size: 0.875rem;
+  color: #495057;
+  margin-bottom: 0.25rem;
+  font-family: monospace;
+}
+
+.sessionIp {
+  font-size: 0.75rem;
+  color: #6c757d;
+  font-family: monospace;
+  margin-bottom: 0.5rem;
+}
+
+.sessionFooter {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #6c757d;
+  padding-top: 0.5rem;
+  border-top: 1px solid #dee2e6;
+}
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: #f8f9fa;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s;
+}
+
+.table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.table td {
+  padding: 0.75rem;
+  color: #495057;
+}
+
+.shortUrl {
+  font-family: monospace;
+  color: #667eea;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.shortUrl:hover {
+  color: #5568d3;
+}
+
+.fullUrl {
+  font-family: monospace;
+  color: #495057;
+  font-size: 0.875rem;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comment {
+  color: #6c757d;
+  font-size: 0.875rem;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.date {
+  color: #6c757d;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tableContainer {
+    overflow-x: auto;
+  }
+
+  .table {
+    min-width: 800px;
+  }
+}
