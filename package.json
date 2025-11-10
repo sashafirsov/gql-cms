@@ -80,6 +80,7 @@
         "@types/cookie-parser": "^1.4.10",
         "@types/jest": "^30.0.0",
         "@types/jsonwebtoken": "^9.0.10",
+        "@types/minimatch": "^6.0.0",
         "@types/node": "20.19.9",
         "@types/react": "19.0.0",
         "@types/react-dom": "19.0.0",
