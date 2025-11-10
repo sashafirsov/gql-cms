@@ -58,8 +58,11 @@ ___
 
 # Start development
 
-    npm install --legacy-peer-deps # @storybook/test-runner still in legacy mode
-    npm start # would build and run all applications above in docker
+    yarn
+    yarn start # would build and run all applications above in docker
+    # or if you prefer NPM
+    npm install
+    npm start 
 
 * http://localhost:4200/ - web UI
 * http://localhost:5433/status - health check for API

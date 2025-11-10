@@ -122,6 +122,9 @@
         "apps/*",
         "lib/*"
     ],
+    "overrides": {
+        "storybook": "10.0.2"
+    },
     "msw": {
         "workerDirectory": [
             "lib/auth-ui/public"
