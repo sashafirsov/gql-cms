@@ -9,8 +9,16 @@ A reference project with best practices of
 * ✓ Complete authentication with JWT + argon2 + token rotation
 * ✓ NextJS Admin UI with Apollo Client
 * ✓ Reusable library with [admin-ui components]()
-* - Semantic UI Theme TBD
-
+* [] Semantic UI Theme TBD
+* [] StoryBook pixel regression test + review git flow
+* [] OpenAPI use for natural language query to GraphQL
+* [] UI component generator with i18n, StoryBook, MSW web services mocking
+* [] Synthetic Persona complete seed data
+* [] ORM-driven DAL to keep DB schema source in code.
+* [] k8s Helm chart local and environment with sample deployments into 3 major clouds.
+* [] GHA based deployment, deploy branch by tag
+* [] Ephemeral Environment on demand, PR-level temporary dynamic environment, e2e tests run. [Vercel?](https://vercel.com/docs/deployments/environments)
+* [] OpenTelemetry sample integrations, local and within k8s
 
 <details>
     <summary>Screencast</summary>
@@ -42,12 +50,9 @@ A reference project with best practices of
         <img src="docs/screencast/docker-desktop.png" alt=""/>
         <h6>GraphQL console</h6>
         <img src="docs/screencast/graphql-console.png" alt=""/>
-        
-
-    <hr/>
-
 </details>
 
+___
 
 # Start development
 
