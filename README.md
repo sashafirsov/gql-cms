@@ -11,11 +11,11 @@ A reference project with best practices of
 * ✓ Reusable library with [admin-ui components]()
 * - Semantic UI Theme TBD
 
-![alt text](docs/screencast/nx-graph.png)            
 
 <details>
     <summary>Screencast</summary>
         <a href="https://cdn.xml4jquery.com/gql-cms/nx-graph.html">
+![alt text](docs/screencast/nx-graph.png)            
         </a> 
     <hr/>
 
