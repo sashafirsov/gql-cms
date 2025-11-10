@@ -14,10 +14,36 @@ A reference project with best practices of
 
 <details>
     <summary>Screencast</summary>
+        <h6>monorepo project graph</h6>
         <a href="https://cdn.xml4jquery.com/gql-cms/nx-graph.html">
-![alt text](docs/screencast/nx-graph.png)       
-<img src="docs/screencast/nx-graph.png" />
+            <img src="docs/screencast/nx-graph.png" alt=""/>
         </a> 
+        <h6>Shared UI `auth-ui` lib</h6>
+        <a href="https://cdn.xml4jquery.com/gql-cms/auth-ui/storybook/?path=/story/auth-logincomponent--default">
+            <img src="docs/screencast/auth-ui-login-component.png" alt=""/>
+        </a> 
+        <h6>Admin UI lib</h6>
+        <a href="https://cdn.xml4jquery.com/gql-cms/admin-ui/storybook-static/?path=/story/components-heading--example">
+            <img src="docs/screencast/admin-ui-heading.png" alt=""/>
+        </a> 
+        <h6>Admin UI login</h6>
+        <img src="docs/screencast/admin-ui-login.png" alt=""/>
+        <h6>Admin UI register user</h6>
+        <img src="docs/screencast/admin-ui-register.png" alt=""/>
+        <h6>Admin UI dashboard</h6>
+        <img src="docs/screencast/admin-ui-dashboard.png" alt=""/>
+        <h6>Admin UI URLs</h6>
+        <img src="docs/screencast/admin-ui-urls.png" alt=""/>
+        <h6>Admin UI Users</h6>
+        <img src="docs/screencast/admin-ui-urls.png" alt=""/>
+        <h6>Admin UI User detailss</h6>
+        <img src="docs/screencast/admin-ui-user.png" alt=""/>
+        <h6>Docker Desktop</h6>
+        <img src="docs/screencast/docker-desktop.png" alt=""/>
+        <h6>GraphQL console</h6>
+        <img src="docs/screencast/graphql-console.png" alt=""/>
+        
+
     <hr/>
 
 </details>
