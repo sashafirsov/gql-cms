@@ -42,9 +42,11 @@ A reference project with best practices of
         <img src="docs/screencast/admin-ui-dashboard.png" alt=""/>
         <h6>Admin UI URLs</h6>
         <img src="docs/screencast/admin-ui-urls.png" alt=""/>
+        <h6>Admin UI Analytics</h6>
+        <img src="docs/screencast/admin-ui-analytics.png" alt=""/>
         <h6>Admin UI Users</h6>
         <img src="docs/screencast/admin-ui-urls.png" alt=""/>
-        <h6>Admin UI User detailss</h6>
+        <h6>Admin UI User details</h6>
         <img src="docs/screencast/admin-ui-user.png" alt=""/>
         <h6>Docker Desktop</h6>
         <img src="docs/screencast/docker-desktop.png" alt=""/>
