@@ -2,13 +2,23 @@
 
 A reference project with best practices of
 
-* ✓ monorepo
-* ✓ Two ACL/authorization systems (simple per-resource + Zanzibar ReBAC)
+* ✓ ( [graph](https://cdn.xml4jquery.com/gql-cms/nx-graph.html) ) monorepo with multi-tier apps support from DB via web services to UI with reusable libs.
+* ✓ Two [ACL/authorization](docs/ACL.md) systems (simple per-resource + Zanzibar ReBAC)
 * ✓ Native PostgreSQL Row-Level Security (RLS)
 * ✓ GraphQL API with PostGraphile and NestJS backend
 * ✓ Complete authentication with JWT + argon2 + token rotation
 * ✓ NextJS Admin UI with Apollo Client
+* ✓ Reusable library with [admin-ui components]()
 * - Semantic UI Theme TBD
+
+<details>
+    <summary>Screencast</summary>
+        <a href="https://cdn.xml4jquery.com/gql-cms/nx-graph.html">
+            <img src="https://cdn.xml4jquery.com/gql-cms/nx-graph.png" alt="Screencast">
+        </a> 
+    <hr/>
+
+</details>
 
 
 # Start development
