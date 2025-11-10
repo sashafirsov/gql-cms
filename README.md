@@ -15,7 +15,8 @@ A reference project with best practices of
 <details>
     <summary>Screencast</summary>
         <a href="https://cdn.xml4jquery.com/gql-cms/nx-graph.html">
-![alt text](docs/screencast/nx-graph.png)            
+![alt text](docs/screencast/nx-graph.png)       
+<img src="docs/screencast/nx-graph.png" />
         </a> 
     <hr/>
 
