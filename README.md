@@ -2,15 +2,79 @@
 
 A reference project with best practices of
 
-* ✓ monorepo
-* Two ACL/authorization systems (simple per-resource + Zanzibar ReBAC)
-* Native PostgreSQL Row-Level Security (RLS)
-* GraphQL API with PostGraphile and NestJS backend
-* Complete authentication with JWT + argon2 + token rotation
-* NextJS Admin UI with Apollo Client
-* Semantic UI Theme
+* ✓ ( [graph](https://cdn.xml4jquery.com/gql-cms/nx-graph.html) ) monorepo with multi-tier apps support from DB via web services to UI with reusable libs.
+* ✓ Two [ACL/authorization](docs/ACL.md) systems (simple per-resource + Zanzibar ReBAC)
+* ✓ Native PostgreSQL Row-Level Security (RLS)
+* ✓ GraphQL API with PostGraphile and NestJS backend
+* ✓ Complete authentication with JWT + argon2 + token rotation
+* ✓ NextJS Admin UI with Apollo Client
+* ✓ Reusable library with [admin-ui components]()
+* [] Semantic UI Theme TBD
+* [] StoryBook pixel regression test + review git flow
+* [] OpenAPI use for natural language query to GraphQL
+* [] UI component generator with i18n, StoryBook, MSW web services mocking
+* [] Synthetic Persona complete seed data
+* [] ORM-driven DAL to keep DB schema source in code.
+* [] k8s Helm chart local and environment with sample deployments into 3 major clouds.
+* [] GHA based deployment, deploy branch by tag
+* [] Ephemeral Environment on demand, PR-level temporary dynamic environment, e2e tests run. [Vercel?](https://vercel.com/docs/deployments/environments)
+* [] OpenTelemetry sample integrations, local and within k8s
 
-## Sub-projects
+<details>
+    <summary>Screencast</summary>
+        <h6>monorepo project graph</h6>
+        <a href="https://cdn.xml4jquery.com/gql-cms/nx-graph.html">
+            <img src="docs/screencast/nx-graph.png" alt=""/>
+        </a> 
+        <h6>Shared UI `auth-ui` lib</h6>
+        <a href="https://cdn.xml4jquery.com/gql-cms/auth-ui/storybook/?path=/story/auth-logincomponent--default">
+            <img src="docs/screencast/auth-ui-login-component.png" alt=""/>
+        </a> 
+        <h6>Admin UI lib</h6>
+        <a href="https://cdn.xml4jquery.com/gql-cms/admin-ui/storybook-static/?path=/story/components-heading--example">
+            <img src="docs/screencast/admin-ui-heading.png" alt=""/>
+        </a> 
+        <h6>Admin UI login</h6>
+        <img src="docs/screencast/admin-ui-login.png" alt=""/>
+        <h6>Admin UI register user</h6>
+        <img src="docs/screencast/admin-ui-register.png" alt=""/>
+        <h6>Admin UI dashboard</h6>
+        <img src="docs/screencast/admin-ui-dashboard.png" alt=""/>
+        <h6>Admin UI URLs</h6>
+        <img src="docs/screencast/admin-ui-urls.png" alt=""/>
+        <h6>Admin UI Analytics</h6>
+        <img src="docs/screencast/admin-ui-analytics.png" alt=""/>
+        <h6>Admin UI Users</h6>
+        <img src="docs/screencast/admin-ui-urls.png" alt=""/>
+        <h6>Admin UI User details</h6>
+        <img src="docs/screencast/admin-ui-user.png" alt=""/>
+        <h6>Docker Desktop</h6>
+        <img src="docs/screencast/docker-desktop.png" alt=""/>
+        <h6>GraphQL console</h6>
+        <img src="docs/screencast/graphql-console.png" alt=""/>
+</details>
+
+___
+
+# Start development
+
+    yarn
+    yarn start # would build and run all applications above in docker
+    # or if you prefer NPM
+    npm install
+    npm start 
+
+* http://localhost:4200/ - web UI
+* http://localhost:5433/status - health check for API
+* http://localhost:5433/graphiql - GraphQL console for DB inspection and development
+
+Create a user to create and see [slugs](docs/slug.md)
+ 
+For an analytics view, use **manager@example.com**  with _Manager123#_ password
+
+
+# Sub-projects
+Each application also could be run separately.
 
 * `admin-ui` - NextJS Admin UI with Apollo Client
 * `gql-api` - NestJS backend with PostGraphile GraphQL API
@@ -18,33 +82,31 @@ A reference project with best practices of
 * `gql-cms-db` - PostgreSQL 15 in Docker with RLS policies
 * [auth-ui](lib/auth-ui/README.md) - shared authentication flow UI library
 
-# Start development
-
-    npm install --legacy-peer-deps # @storybook/test-runner still in legacy mode
-    npm start # would build and run all applications above in docker
-
-Each application also could be run separately.
-
 # `admin-ui`
 
-    nx serve admin-ui
+    nx serve admin-ui # or
 
-Navigate to http://localhost:4200. The app will automatically reload if you change any of the source files.
+* Navigate to http://localhost:4200. The app will automatically reload if you change any of the source files.
+* It also would run the `gql-api` application in the background with proxy to `http://localhost:4200/api`.
+* Use StoryBook for components development
 
-It also would run the `gql-api` application in the background with proxy to `http://localhost:4200/api`.
+```bash
+    npm run storybook 
+```
 
 # `db-init`
 
     nx serve db-init
 
-Populates the Synthetic Persona data into Postgres DB and gives the status on.
-Navigate to `http://localhost:3000/status`. The
+TBD: Populates the Synthetic Persona data into Postgres DB and gives the status on 
+http://localhost:3000/status
 
 # `gql-api`
 
     nx serve gql-api
 
-will run the gql-api application. Navigate to `http://localhost:5433/api`. The app will automatically reload if you change any of the source files.
+will run the gql-api application. Navigate to `http://localhost:5433/graphiql` for GraphQL console. 
+The app will automatically reload if you change any of the source files.
 
 # Development
 
@@ -64,8 +126,7 @@ will run the gql-api application. Navigate to `http://localhost:5433/api`. The a
 
 ## UI components development
 
-* [auth-ui](lib/auth-ui/README.md) - authentication components
-* cms-ui TBD.
+* [auth-ui](lib/auth-ui/README.md) - authentication components, uses StoryBook for development
 
 ## Admin UI
 
@@ -73,7 +134,6 @@ will run the gql-api application. Navigate to `http://localhost:5433/api`. The a
 
 * Admin UI is available at http://localhost:4200/
 * API proxy is available at http://localhost:4200/api
-* `db-init` API direct is available at http://localhost:3000/api
 
 ## Auth UI Library - Dual Nature Architecture
 

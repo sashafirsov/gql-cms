@@ -8,7 +8,9 @@ BEGIN;
 -- Find principal by email (for login)
 CREATE OR REPLACE FUNCTION acl.find_principal_by_email(p_email CITEXT)
 RETURNS UUID
-LANGUAGE sql STABLE AS $$
+LANGUAGE sql STABLE
+SECURITY DEFINER
+AS $$
     SELECT principal_id FROM acl.user_credentials WHERE email = p_email;
 $$;
 
@@ -213,7 +215,9 @@ RETURNS TABLE(
     db_role TEXT,
     email_verified BOOLEAN
 )
-LANGUAGE sql STABLE AS $$
+LANGUAGE sql STABLE
+SECURITY DEFINER
+AS $$
     SELECT
         p.id,
         c.email,
@@ -236,7 +240,9 @@ CREATE OR REPLACE FUNCTION acl.create_principal_with_password(
     p_kind acl.principal_kind DEFAULT 'customer',
     p_display_name TEXT DEFAULT NULL
 ) RETURNS UUID
-LANGUAGE plpgsql AS $$
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
 DECLARE
     v_principal_id UUID;
 BEGIN

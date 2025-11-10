@@ -28,7 +28,7 @@ export function ProfileLink({
   showAvatar = true,
   onClick,
 }: ProfileLinkProps) {
-  const href = `/${lang}/profile`;
+  const href = `/${lang}/dashboard`;
 
   // Get initials from display name
   const getInitials = (name?: string): string => {

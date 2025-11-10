@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { House, Users2, LucideBadgeInfo } from 'lucide-react';
+import { House, Users2, LucideBadgeInfo, Globe, ChartBar } from 'lucide-react';
 
 import { useLanguage } from '@/components/useLanguage';
 
@@ -17,6 +17,8 @@ export const NavBar = () => {
     const pages = [
         ['home', '', House],
         ['users', 'users', Users2],
+        ['urls', 'urls', Globe],
+        ['stats', 'stats', ChartBar],
         ['about', 'about', LucideBadgeInfo],
     ];
     const { language } = useLanguage();

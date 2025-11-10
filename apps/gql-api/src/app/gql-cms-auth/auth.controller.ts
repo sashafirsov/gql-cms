@@ -3,7 +3,7 @@
 
 import { Controller, Post, Get, Body, Req, Res, HttpException, HttpStatus } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import type { AuthService } from './auth.service.ts';
+import { AuthService } from './auth.service.ts';
 import type { RegisterDto, LoginDto, AuthResponse } from './auth.dto.ts';
 
 @Controller('gql-cms/auth')

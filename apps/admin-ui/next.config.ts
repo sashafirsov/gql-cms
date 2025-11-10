@@ -5,6 +5,12 @@ const { composePlugins, withNx } = require('@nx/next');
 /**
  * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
  **/
+// In Docker production, use service name 'graphql'. In local dev, use 'localhost'
+// Note: This is evaluated at build time, so we check NODE_ENV
+const isProduction = process.env.NODE_ENV === 'production';
+const apiUrl = isProduction ? 'http://graphql:5433' : 'http://localhost:5433';
+console.log('api', apiUrl);
+
 const nextConfig: NextConfig = {
     output: 'standalone',
     typedRoutes: false,
@@ -21,15 +27,19 @@ const nextConfig: NextConfig = {
             },
             {
                 source: '/northwind/auth/:path*',
-                destination: 'http://localhost:5433/northwind/auth/:path*'
+                destination: `${apiUrl}/northwind/auth/:path*`
+            },
+            {
+                source: '/gql-cms/auth/:path*',
+                destination: `${apiUrl}/gql-cms/auth/:path*`
             },
             {
                 source: '/graphql',
-                destination: 'http://localhost:5433/graphql'
+                destination: `${apiUrl}/graphql`
             },
             {
                 source: '/graphiql',
-                destination: 'http://localhost:5433/graphiql'
+                destination: `${apiUrl}/graphiql`
             }
         ];
     }

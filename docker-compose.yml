@@ -65,6 +65,7 @@ services:
             - ./.env
         environment:
             PORT: 4200
+            GRAPHQL_API_URL: http://graphql:5433
         depends_on:
             - graphql
             - db-init

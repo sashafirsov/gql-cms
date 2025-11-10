@@ -4,23 +4,16 @@ const { join } = require('path');
 module.exports = {
   output: {
     path: join(__dirname, 'dist'),
-    library: {
-      type: 'module',
-    },
-    chunkFormat: 'module',
-    module: true,
-    environment: {
-      module: true,
-      dynamicImport: true,
-    },
+    libraryTarget: 'commonjs2',
     ...(process.env.NODE_ENV !== 'production' && {
       devtoolModuleFilenameTemplate: '[absolute-resource-path]',
     }),
   },
-  experiments: {
-    outputModule: true,
+  resolve: {
+    alias: {
+      '@auth-ui': join(__dirname, '../../lib/auth-ui/src'),
+    },
   },
-  externalsType: 'module',
   plugins: [
     new NxAppWebpackPlugin({
       target: 'node',

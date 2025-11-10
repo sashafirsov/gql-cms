@@ -6,3 +6,6 @@
 --
 -- INSERT INTO gql_cms.user_acl(target_user_id, user_id, role_name)
 --   VALUES ((SELECT id FROM gql_cms.users WHERE email = 'admin@example.com'), (SELECT id FROM gql_cms.users WHERE email = 'admin@example.com'), 'owner');
+
+-- Seed manager user for analytics access is now done in 91-northwind-auth-seed.sql
+-- This file is kept minimal to avoid dependency issues with ACL schema
