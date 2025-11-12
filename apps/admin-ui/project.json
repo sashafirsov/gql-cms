@@ -3,13 +3,11 @@
     "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "sourceRoot": "apps/admin-ui/src",
     "projectType": "application",
-    "tags": [ ],
+    "tags": [],
     "targets": {
         "build": {
             "executor": "nx:run-commands",
-            "outputs": [
-                "{workspaceRoot}/dist/apps/admin-ui"
-            ],
+            "outputs": ["{workspaceRoot}/dist/apps/admin-ui"],
             "options": {
                 "command": "NODE_ENV=production nx next-build admin-ui",
                 "cwd": "{workspaceRoot}"
@@ -17,9 +15,7 @@
         },
         "next-build": {
             "executor": "@nx/next:build",
-            "outputs": [
-                "{options.outputPath}"
-            ],
+            "outputs": ["{options.outputPath}"],
             "options": {
                 "outputPath": "dist/apps/admin-ui"
             }
@@ -33,7 +29,7 @@
             }
         },
         "serve": {
-            "executor": "@nx/next:server",
+            "executor": "@nx/next:serve",
             "defaultConfiguration": "development",
             "options": {
                 "buildTarget": "@gql-cms/admin-ui:build",
@@ -49,9 +45,13 @@
                     "dev": false
                 }
             },
-            "dependsOn": [
-                "db-init:serve"
-            ]
+            "dependsOn": ["db-init:serve"]
+        },
+        "start": {
+            "executor": "@nx/next:start",
+            "options": {
+                "buildTarget": "@gql-cms/admin-ui:build"
+            }
         },
         "lint": {
             "executor": "@nx/eslint:lint",
@@ -65,10 +65,7 @@
             }
         },
         "docker:build": {
-            "dependsOn": [
-                "build",
-                "prune"
-            ]
+            "dependsOn": ["build", "prune"]
         }
     }
 }

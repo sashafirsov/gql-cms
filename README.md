@@ -19,6 +19,7 @@ A reference project with best practices of
 * [] GHA based deployment, deploy branch by tag
 * [] Ephemeral Environment on demand, PR-level temporary dynamic environment, e2e tests run. [Vercel?](https://vercel.com/docs/deployments/environments)
 * [] OpenTelemetry sample integrations, local and within k8s
+* [] production deployment guide
 
 <details>
     <summary>Screencast</summary>
