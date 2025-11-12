@@ -1,0 +1,2 @@
+# Ignore database initialization directory - it's not an Nx project
+apps/db-init/db
