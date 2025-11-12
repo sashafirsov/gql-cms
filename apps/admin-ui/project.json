@@ -29,7 +29,7 @@
             }
         },
         "serve": {
-            "executor": "@nx/next:server",
+            "executor": "@nx/next:serve",
             "defaultConfiguration": "development",
             "options": {
                 "buildTarget": "@gql-cms/admin-ui:build",
@@ -46,6 +46,12 @@
                 }
             },
             "dependsOn": ["db-init:serve"]
+        },
+        "start": {
+            "executor": "@nx/next:start",
+            "options": {
+                "buildTarget": "@gql-cms/admin-ui:build"
+            }
         },
         "lint": {
             "executor": "@nx/eslint:lint",
