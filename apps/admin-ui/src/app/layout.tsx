@@ -1,41 +1,18 @@
-'use client';
-
 import type { ReactNode } from 'react';
-import { Suspense } from 'react';
-
 import './global.css';
 import styles from './page.module.css';
-import { Heading } from '@/components/Heading';
-import { useLanguage } from '@/components/useLanguage';
-import { Loading } from '@/components/Loading';
-import { NavBar } from '@/components/NavBar';
-import { ApolloProvider } from '@/components/ApolloProvider';
+import { ClientLayout } from '@/components/ClientLayout';
 
-// export const metadata = {
-//     title: 'GraphQL CMS',
-//     description: 'GraphQL CMS Admin UI',
-// };
-
-const HeadingWithLang = () => {
-    const { getText } = useLanguage();
-    return <Heading title={getText('welcome')} />;
+export const metadata = {
+    title: 'GraphQL CMS',
+    description: 'GraphQL CMS Admin UI',
 };
-
-
 
 export default function RootLayout({ children }: { children: ReactNode }) {
     return (
         <html lang="en">
             <body className={styles.page}>
-                <ApolloProvider>
-                    <Suspense fallback={(<Loading />) as ReactNode}>
-                        <HeadingWithLang />
-                    </Suspense>
-                    <Suspense fallback={(<Loading />) as ReactNode}>
-                        <NavBar />
-                    </Suspense>
-                    <main>{children}</main>
-                </ApolloProvider>
+                <ClientLayout>{children}</ClientLayout>
             </body>
         </html>
     );
