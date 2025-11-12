@@ -1,6 +1,6 @@
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "outDir": "./out-tsc/jest",
     "jsx": "react",
     "types": ["jest", "node"],
@@ -8,9 +8,23 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "noEmit": false,
-    "composite": false,
-    "incremental": false
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "es2022",
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "isolatedModules": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@auth-ui": ["../../lib/auth-ui/src"]
+    }
   },
   "include": [
     "jest.config.ts",
