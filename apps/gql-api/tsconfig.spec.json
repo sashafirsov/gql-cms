@@ -1,23 +1,51 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "outDir": "./out-tsc/jest",
     "types": [
       "jest",
       "node"
     ],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "target": "es2021",
+    "lib": ["es2022"],
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmitOnError": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "isolatedModules": true,
+    "importHelpers": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "allowImportingTsExtensions": true,
+    "tsBuildInfoFile": "./out-tsc/jest/tsconfig.spec.tsbuildinfo",
+    "paths": {
+      "@auth-ui": ["../../lib/auth-ui/src"],
+      "@auth-ui/*": ["../../lib/auth-ui/src/*"]
+    }
   },
   "include": [
     "jest.config.ts",
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts",
+    "src/**/*.ts",
     "src/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "out-tsc"
   ],
   "references": [
     {
-      "path": "./tsconfig.app.json"
+      "path": "../../lib/auth-ui"
     }
   ]
 }

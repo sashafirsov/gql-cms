@@ -33,9 +33,12 @@ jobs:
 
       - run: npm ci
 
+      # Generate JWT keys required for build
+      - run: bash bin/jwt_keys.sh
+
       # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
       # - run: npx nx-cloud record -- echo Hello World
       - run: npx nx run-many -t lint test build typecheck
       # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
-      - run: npx nx fix-ci
-        if: always()
+#      - run: npx nx fix-ci
+#        if: always()
