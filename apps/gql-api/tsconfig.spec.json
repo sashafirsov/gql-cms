@@ -45,7 +45,7 @@
   ],
   "references": [
     {
-      "path": "../../lib/auth-ui"
+      "path": "../../lib/auth-ui/tsconfig.lib.json"
     }
   ]
 }
