@@ -8,7 +8,7 @@ A reference project with best practices of
 * ✓ GraphQL API with PostGraphile and NestJS backend
 * ✓ Complete authentication with JWT + argon2 + token rotation
 * ✓ NextJS Admin UI with Apollo Client
-* ✓ Reusable library with [admin-ui components]()
+* ✓ Reusable library with [admin-ui components](https://cdn.xml4jquery.com/gql-cms/admin-ui/storybook-static/?path=/story/components-heading--example)
 * [] Semantic UI Theme TBD
 * [] StoryBook pixel regression test + review git flow
 * [] OpenAPI use for natural language query to GraphQL
