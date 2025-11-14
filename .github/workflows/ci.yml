@@ -13,6 +13,8 @@ permissions:
 jobs:
   main:
     runs-on: ubuntu-latest
+    env:
+        NODE_ENV: production
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,17 +33,22 @@ jobs:
           node-version: 24
           cache: 'npm'
 
-      - run: npm i
+      - run: npm ci
 
       # Generate JWT keys required for build
       - run: bash bin/jwt_keys.sh
 
       # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
       # - run: npx nx-cloud record -- echo Hello World
-      - name: lint, build, test
-        env:
-            NODE_ENV: production
-        run:  npx nx run-many -t lint test build typecheck
+      - name: lint
+        run:  npx nx run-many -t lint
+      - name: typecheck
+        run:  npx nx run-many -t typecheck
+      - name: build
+        run:  npx nx run-many -t build
+      - name: test
+        run:  npx nx run-many -t test
+#     - run:  npx nx run-many -t lint test build typecheck
       # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
 #      - run: npx nx fix-ci
 #        if: always()
