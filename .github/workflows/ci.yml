@@ -38,6 +38,9 @@ jobs:
       # Generate JWT keys required for build
       - run: bash bin/jwt_keys.sh
 
+      - name: Install Nx globally
+        run: npm install -g nx
+
       # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
       # - run: npx nx-cloud record -- echo Hello World
       - name: lint
