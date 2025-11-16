@@ -14,10 +14,9 @@
             },
             "configurations": {
                 "development": {
-                    "outputPath": "apps/admin-ui",
-                    "debug": true
+                    "outputPath": "apps/admin-ui"
                 },
-                "production": {"debug": true}
+                "production": {}
             }
         },
         "dev-server": {
