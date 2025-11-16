@@ -13,8 +13,6 @@ permissions:
 jobs:
   main:
     runs-on: ubuntu-latest
-    env:
-        NODE_ENV: production
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,9 +35,6 @@ jobs:
 
       # Generate JWT keys required for build
       - run: bash bin/jwt_keys.sh
-
-      - name: Install Nx globally
-        run: npm install nx
 
       # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
       # - run: npx nx-cloud record -- echo Hello World
