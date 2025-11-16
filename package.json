@@ -6,7 +6,7 @@
         "start": "npm run build && npm run docker",
         "build": "bash bin/jwt_keys.sh && npx nx run-many --target=build --all",
         "ci": "npx nx run-many -t lint typecheck build test --exclude=@gql-cms/admin-ui --exclude=@gql-cms/admin-ui-e2e",
-        "ci:admin-ui": "npx nx run-many -t lint typecheck build test --projects=@gql-cms/admin-ui",
+        "ci:admin-ui": "node -v && npm -v && npx nx run-many -t lint typecheck build test --projects=@gql-cms/admin-ui",
         "ci:admin-ui-e2e": "npx nx run-many -t lint typecheck build test --projects=@gql-cms/admin-ui-e2e",
         "lint": "npx nx run-many --target=lint --all",
         "test": "npx nx run-many --target=test --all",
