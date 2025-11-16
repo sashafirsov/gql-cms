@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
     typedRoutes: false,
     // Transpile local libraries to ensure CSS modules work correctly
     transpilePackages: ['@gql-cms/auth-ui'],
+    // Skip static optimization to avoid errors with error pages
+    skipTrailingSlashRedirect: true,
     // Use this to set Nx-specific options
     // See: https://nx.dev/recipes/next/next-config-setup
     nx: {},
