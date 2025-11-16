@@ -28,17 +28,29 @@ jobs:
       # Cache node_modules
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: '24.10.0'
           cache: 'npm'
 
-      - run: npm i
+      - run: npm ci
 
       # Generate JWT keys required for build
       - run: bash bin/jwt_keys.sh
 
       # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
       # - run: npx nx-cloud record -- echo Hello World
-      - run: NODE_ENV=production npx nx run-many -t lint test build typecheck
+      - name: Run CI checks
+        run:  npm run ci
+
+#      - name: Run CI admin-ui
+#        run:  npm run ci:admin-ui
+#        env:
+#          NODE_ENV: production
+#
+#      - name: Run CI admin-ui-e2e
+#        run:  npm run ci:admin-ui-e2e
+#        env:
+#          NODE_ENV: production
+#     - run:  npx nx run-many -t lint test build typecheck
       # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
 #      - run: npx nx fix-ci
 #        if: always()

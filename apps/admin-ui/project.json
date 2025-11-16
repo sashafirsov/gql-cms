@@ -6,18 +6,17 @@
     "tags": [],
     "targets": {
         "build": {
-            "executor": "nx:run-commands",
-            "outputs": ["{workspaceRoot}/dist/apps/admin-ui"],
-            "options": {
-                "command": "NODE_ENV=production nx next-build admin-ui",
-                "cwd": "{workspaceRoot}"
-            }
-        },
-        "next-build": {
             "executor": "@nx/next:build",
             "outputs": ["{options.outputPath}"],
+            "defaultConfiguration": "production",
             "options": {
                 "outputPath": "dist/apps/admin-ui"
+            },
+            "configurations": {
+                "development": {
+                    "outputPath": "apps/admin-ui"
+                },
+                "production": {}
             }
         },
         "dev-server": {
