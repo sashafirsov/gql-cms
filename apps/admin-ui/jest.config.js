@@ -1,11 +1,11 @@
-import type { Config } from 'jest';
+// import type { Config } from 'jest';
 import nextJest from 'next/jest.js';
 
 const createJestConfig = nextJest({
   dir: './',
 });
 
-const config: Config = {
+const config/* : Config*/ = {
   displayName: '@gql-cms/admin-ui',
   preset: '../../jest.preset.js',
   transform: {
