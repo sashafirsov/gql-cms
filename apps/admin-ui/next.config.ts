@@ -7,7 +7,7 @@ const { composePlugins, withNx } = require('@nx/next');
  **/
 // In Docker production, use service name 'graphql'. In local dev, use 'localhost'
 // Note: This is evaluated at build time, so we check NODE_ENV
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = true;//process.env.NODE_ENV === 'production';
 const apiUrl = isProduction ? 'http://graphql:5433' : 'http://localhost:5433';
 console.log('api', apiUrl);
 
