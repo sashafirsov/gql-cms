@@ -38,8 +38,12 @@ jobs:
 
       # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
       # - run: npx nx-cloud record -- echo Hello World
-      - name: lint
+      - name: Run CI checks
         run:  npm run ci
+      - name: Run CI admin-ui
+        run:  npm run ci:admin-ui
+      - name: Run CI admin-ui-e2e
+        run:  npm run ci:admin-ui-e2e
 #     - run:  npx nx run-many -t lint test build typecheck
       # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
 #      - run: npx nx fix-ci
