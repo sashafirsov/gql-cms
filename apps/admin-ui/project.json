@@ -5,6 +5,20 @@
     "projectType": "application",
     "tags": [],
     "targets": {
+        "build": {
+            "executor": "@nx/next:build",
+            "outputs": ["{options.outputPath}"],
+            "defaultConfiguration": "production",
+            "options": {
+                "outputPath": "dist/apps/admin-ui"
+            },
+            "configurations": {
+                "development": {
+                    "outputPath": "apps/admin-ui"
+                },
+                "production": {}
+            }
+        },
         "dev-server": {
             "executor": "@nx/next:serve",
             "options": {
